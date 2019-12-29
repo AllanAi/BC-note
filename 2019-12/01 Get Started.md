@@ -2,7 +2,7 @@
 
 1. 关闭虚拟机里的系统
 
-![image-20191229140019905](images\image-20191229140019905.png)
+![image-20191229140019905](images/image-20191229140019905.png)
 
 
 
@@ -14,9 +14,11 @@
 
 ### 生成 SSH Keys
 
-SSH 方式连接 github 进行操作（如 `git clone git@github.com:...`）时，报错 `git@github.com: Permission denied (publickey).`
+使用 SSH 连接 github 操作（如 `git clone git@github.com:...`）时，报错 `git@github.com: Permission denied (publickey).`
 
-运行以下命令生成 SSH 密钥：
+解决方法：
+
+运行以下命令生成本机 SSH 密钥：
 
 ```bash
 mkdir ~/.ssh //in case that the folder doesnt exist...
@@ -28,3 +30,6 @@ ssh-keygen -t rsa -C "youremail@somewhere.gr"
 然后一路回车即可。
 
 使用 `cat id_rsa.pub` 命令查看公钥，并将公钥加到 `https://github.com/settings/keys` 
+
+
+
