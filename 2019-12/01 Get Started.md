@@ -91,7 +91,7 @@ export GO111MODULE=on
 export GOPROXY=https://goproxy.io
 ```
 
-更详细的使用 go mod https://blog.csdn.net/qq_42403866/article/details/93654421
+更详细的 go mod 使用方法  https://blog.csdn.net/qq_42403866/article/details/93654421
 
 ## github
 
@@ -116,5 +116,5 @@ ssh-keygen -t rsa -C "youremail@somewhere.gr"
 
 ### Hello World
 
-1
+
 
