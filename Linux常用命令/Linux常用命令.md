@@ -633,7 +633,7 @@ tar -xZvf file.tar.Z  //解压tar.Z
 
 tar -cvf jpg.tar *.jpg //将目录里所有jpg文件打包成jpg.tar 
 
-tar -czf jpg.tar.gz *.jpg  //将目录里所有jpg文件打包成jpg.tar后，并且将其用gzip压缩
+tar -czvf jpg.tar.gz *.jpg  //将目录里所有jpg文件打包成jpg.tar后，并且将其用gzip压缩
 
 tar -rf all.tar *.gif //将目录里所有.gif的文件增加到all.tar包
 
