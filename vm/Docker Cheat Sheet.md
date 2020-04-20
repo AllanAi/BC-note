@@ -514,6 +514,19 @@ docker-compose stop
 
 You can bring everything down, removing the containers entirely, with the down command. Pass `--volumes` to also remove the data volume.
 
+### Install
+
+https://docs.docker.com/compose/install/
+
+```bash
+sudo curl -L "https://github.com/docker/compose/releases/download/1.25.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+
+docker-compose --version
+```
+
+docker-compose命令和docker命令一样，需要管理员权限，在命令前面加上sudo，否则报错：“ERROR: Couldn't connect to Docker daemon at……”。
+
 ## 编排器
 
 - *Kubernetes*

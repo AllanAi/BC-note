@@ -56,10 +56,6 @@ SOURCE test1.sql;
 SOURCE test2.sql;
 ```
 
-# Redis Windows
-
-下载地址：https://github.com/microsoftarchive/redis/releases
-
 # Spring Initializr
 
 https://start.spring.io/ 访问不稳定，编译一个本地版本使用
@@ -92,18 +88,3 @@ mvn spring-boot:run
 ```
 
 
-
-# Docker Compose
-
-## Install Compose
-
-https://docs.docker.com/compose/install/
-
-```bash
-sudo curl -L "https://github.com/docker/compose/releases/download/1.25.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
-
-docker-compose --version
-```
-
-docker-compose命令和docker命令一样，需要管理员权限，在命令前面加上sudo，否则报错：“ERROR: Couldn't connect to Docker daemon at……”。

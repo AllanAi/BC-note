@@ -1,15 +1,25 @@
-# 一、golang
+## Github
 
-## 1. 打印调用堆栈
+### 生成 SSH Keys
 
-```go
-fmt.Printf("%s", debug.Stack())
-debug.PrintStack()
+使用 SSH 连接 github 操作（如 `git clone git@github.com:...`）时，报错 `git@github.com: Permission denied (publickey).`
+
+解决方法：
+
+运行以下命令生成本机 SSH 密钥：
+
+```bash
+mkdir ~/.ssh //in case that the folder doesnt exist...
+cd ~/.ssh
+
+ssh-keygen -t rsa -C "youremail@somewhere.gr"
 ```
 
-# 二、git
+然后一路回车即可。
 
-## 1. 给 Git(Github) 设置代理
+使用 `cat id_rsa.pub` 命令查看公钥，并将公钥加到 `https://github.com/settings/keys` 
+
+## 设置代理
 
 https://gist.github.com/chuyik/02d0d37a49edc162546441092efae6a1
 
@@ -55,7 +65,7 @@ Host github.com
    # ProxyCommand nc -v -x 127.0.0.1:1080 %h %p
 ```
 
-## 2. 查看配置信息
+## 查看配置信息
 
 ```shell
 # 查看系统配置
@@ -66,14 +76,4 @@ git config --global  --list
 git config --local  --list
 ```
 
-# 三、Terminal
-
-快速导入路径：直接将待编辑文件或文件夹拖入终端中即可
-
-![](images/8d0427a0705812a7d1e7611041f0e9b6.gif)
-
-不进入休眠状态：当你临时不希望电脑进入休眠状态时，可以使用 caffeinate 命令让电脑时刻清醒。
-
-显示隐藏文件夹：defaults write com.apple.finder AppleShowAllFiles -bool true; killall Finder
-
-恢复隐藏：defaults write com.apple.finder AppleShowAllFiles -bool false; killall Finder
+# 
