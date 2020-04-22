@@ -571,10 +571,8 @@ ma                  保存当前位置到书签 a ，书签名小写字母为文
 :!start notepad     Windows 下启动 notepad，最前面可以加 silent
 :sil !start cmd     Windows 下当前目录打开 cmd
 :%!prog             运行文字过滤程序，如整理 json格式 :%!python -m json.tool
-:w!command   将当前已编辑文件作为command命令的标准输入并执行command命令，如:w!grep all
-:cd directory   将当前工作目录更改为directory所表示的目录
-:sh    将启动一个子shell，使用^d(ctrl+d)返回vi
-:so file   在shell程序file中读入和执行命令
+:w!command          将当前已编辑文件作为command命令的标准输入并执行command命令，如 :w!grep all
+:sh                 将启动一个子shell，使用CTRL-D返回vi
 
 ##############################################################################
 # Quickfix 窗口
