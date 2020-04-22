@@ -50,7 +50,7 @@ git config --global --unset https.proxy
 
 ### 1.2 SSH 形式
 
-适用于：git clone [git@github.com](mailto:git@github.com):owner/git.git
+适用于：git clone git@github.com:owner/git.git
 
 修改 `~/.ssh/config` 文件（不存在则新建）：
 
