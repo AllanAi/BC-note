@@ -533,6 +533,44 @@ ma                  保存当前位置到书签 a ，书签名小写字母为文
 :syntax off         禁止语法高亮
 :set window=n       设置文本窗口显示n行
 
+Vim 配置入门 http://www.ruanyifeng.com/blog/2018/09/vimrc.html
+
+Vim 的全局配置一般在/etc/vim/vimrc或者/etc/vimrc，对所有用户生效。用户个人的配置在~/.vimrc。
+如果只对单次编辑启用某个配置项，可以在命令模式下，先输入一个冒号，再输入配置。
+举例来说，set number这个配置可以写在.vimrc里面，也可以在命令模式输入 :set number
+配置项一般都有"打开"和"关闭"两个设置。"关闭"就是在"打开"前面加上前缀"no"。
+
+配置文件中，双引号开始的行表示注释。
+" 打开
+set number
+" 关闭
+set nonumber
+
+查询某个配置项是打开还是关闭，可以在命令模式下，输入该配置，并在后面加上问号。
+:set number?
+上面的命令会返回number或者nonumber。
+
+如果想查看帮助，可以使用help命令。
+:help number
+
+个人配置文件：
+set nocompatible
+set number
+syntax on
+set showcmd
+" 支持鼠标后，选中文字，CTRL-C失效，可以在选中文字前按住shift(win)/option(mac)不放（暂时禁用鼠标模式）直至选择完毕
+" https://stackoverflow.com/questions/4608161
+set mouse=a
+" 开启以上选项后，解决选中文字颜色问题 https://stackoverflow.com/questions/3074068
+hi Visual term=reverse cterm=reverse guibg=Grey
+" 启用256色
+set t_Co=256
+set encoding=utf-8
+" 在状态栏显示光标的当前位置
+set ruler
+set hlsearch
+" 默认高亮颜色不清晰
+hi Search ctermbg=LightYellow ctermfg=Red
 
 ##############################################################################
 # 帮助信息
