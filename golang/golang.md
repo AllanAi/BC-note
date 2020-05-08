@@ -213,6 +213,29 @@ func substring(source string, start int, end int) string {
 
 https://blog.csdn.net/psyuhen/article/details/51998223
 
+## Big Integer
+
+math/big.Int
+
+```
+//转成字符串
+func (x *Int) Text(base int) string
+//字符串转bigint
+func (z *Int) SetString(s string, base int) (*Int, bool)
+//int64转bigint
+func NewInt(x int64) *Int
+//bigint转int64
+func (x *Int) Int64() int64
+func (x *Int) Uint64() 
+
+//实现了MarshalJSON和UnmarshalJSON方法
+//支持json序列化，其他的序列化方式不支持
+func (x *Int) MarshalJSON() ([]byte, error)
+func (z *Int) UnmarshalJSON(text []byte) error
+```
+
+https://medium.com/orbs-network/big-integers-in-go-14534d0e490d
+
 ## 高并发数
 
 1. 并发数高于128时，出现 connection reset by peer 错误 [mac os]
