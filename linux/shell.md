@@ -97,3 +97,15 @@ bind '"\e[A": history-search-backward'
 https://unix.stackexchange.com/questions/5366/command-line-completion-from-command-history
 
 https://superuser.com/questions/241187/how-do-i-reload-inputrc
+
+## 删除乱码或特殊字符文件
+
+```bash
+# 查询文件的inode
+ls -i
+# 查找对应inode文件并删除
+find ./ -inum $inode -exec rm {} \;
+# 删除文件名含有空格的文件
+rm 'ab cd'
+```
+

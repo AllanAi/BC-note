@@ -296,6 +296,58 @@ http://tleyden.github.io/blog/2016/11/21/tuning-the-go-http-client-library-for-l
 
 # Debug
 
+## IDEA 调试
+
+1. 基础演示 https://studygolang.com/articles/20746
+2. 高级功能 https://blog.jetbrains.com/cn/2019/04/%e4%bb%a5-goland-%e8%b0%83%e8%af%95-%e9%ab%98%e7%ba%a7%e8%b0%83%e8%af%95%e5%8a%9f%e8%83%bd/
+
+核心转储调试 (Core Dump debugging) 和可逆调试器 Mozilla rr
+
+## 远程调试
+
+1. 服务器安装Delve
+
+https://github.com/derekparker/delve
+
+2. 查看IDE说明
+
+菜单栏 `Run` -> `EditConfigurations` -> `+` -> `GoRemote`
+
+Before running this configuration, please start your application and Delve as described bellow.  Allow Delve to compile your application: 
+`dlv debug --headless --listen=:2345 --api-version=2 --accept-multiclient`
+ Or compile the application using Go 1.10 or newer: 
+`go build -gcflags \"all=-N -l\" github.com/app/demo`
+ and then run it via Delve with the following command: 
+`dlv --listen=:2345 --headless=true --api-version=2 --accept-multiclient exec ./demo`
+
+3. 服务器编译程序
+
+`go build -gcflags \"all=-N -l\" github.com/app/demo`
+
+4. 使用dlv启动程序
+
+`dlv --listen=:2345 --headless=true --api-version=2 --accept-multiclient exec ./demo`
+
+带参数
+
+`dlv --listen=:2345 --headless=true --api-version=2 --accept-multiclient exec ./demo -- -c=/config`
+
+等同于`./demo -c=/config`
+
+也可以使用attach命令调试不是dlv启动的程序，首先获取程序进程的pid
+
+`dlv attach $PID --headless --api-version=2 --log --listen=:2345`
+
+5. 本地配置Debug
+
+在刚刚的 `EditConfigurations` 中添加 `GoRemote` 并在Host和Port中配置服务器IP地址和端口号，然后点击调试按钮即可。
+
+https://juejin.im/entry/5d5ce39ef265da039a288b85
+
+https://www.cnblogs.com/mrblue/p/10283936.html
+
+
+
 ## 打印调用堆栈
 
 ```go
