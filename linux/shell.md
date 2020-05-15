@@ -98,7 +98,7 @@ https://unix.stackexchange.com/questions/5366/command-line-completion-from-comma
 
 https://superuser.com/questions/241187/how-do-i-reload-inputrc
 
-## 删除乱码或特殊字符文件
+## 删除文件名乱码或含有特殊字符文件
 
 ```bash
 # 查询文件的inode

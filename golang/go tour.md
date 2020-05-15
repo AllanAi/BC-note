@@ -1488,7 +1488,7 @@ func main() {
 
 类型选择与一般的 switch 语句相似，不过类型选择中的 case 为类型（而非值）， 它们针对给定接口值所存储的值的类型进行比较。
 
-```
+```go
 switch v := i.(type) {
 case T:
     // v 的类型为 T
@@ -1565,7 +1565,7 @@ Go 程序使用 `error` 值来表示错误状态。
 
 与 `fmt.Stringer` 类似，`error` 类型是一个内建接口：
 
-```
+```go
 type error interface {
     Error() string
 }
@@ -1575,7 +1575,7 @@ type error interface {
 
 通常函数会返回一个 `error` 值，调用的它的代码应当判断这个错误是否等于 `nil` 来进行错误处理。
 
-```
+```go
 i, err := strconv.Atoi("42")
 if err != nil {
     fmt.Printf("couldn't convert number: %v\n", err)

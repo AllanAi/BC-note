@@ -610,13 +610,13 @@ import _ "net/http/pprof"
 
 尽管有些接口检查会在运行时进行。`encoding/json` 包中就有个实例它定义了一个 `Marshaler` 接口。当JSON编码器接收到一个实现了该接口的值，那么该编码器就会调用该值的编组方法， 将其转换为JSON，而非进行标准的类型转换。 编码器在运行时通过[类型断言](https://go-zh.org/doc/effective_go.html#接口转换)检查其属性，就像这样：
 
-```
+```go
 m, ok := val.(json.Marshaler)
 ```
 
 若只需要判断某个类型是否是实现了某个接口，而不需要实际使用接口本身 （可能是错误检查部分），就使用空白标识符来忽略类型断言的值：
 
-```
+```go
 if _, ok := val.(json.Marshaler); ok {
 	fmt.Printf("value %v of type %T implements json.Marshaler\n", val, val)
 }
@@ -624,7 +624,7 @@ if _, ok := val.(json.Marshaler); ok {
 
 当需要确保某个包中实现的类型一定满足该接口时，就会遇到这种情况。 若某个类型（例如 `json.RawMessage`） 需要一种定制的JSON表现时，它应当实现 `json.Marshaler`， 不过现在没有静态转换可以让编译器去自动验证它。若该类型通过忽略转换失败来满足该接口， 那么JSON编码器仍可工作，但它却不会使用定制的实现。为确保其实现正确， 可在该包中用空白标识符声明一个全局变量：
 
-```
+```go
 var _ json.Marshaler = (*RawMessage)(nil)
 ```
 
@@ -636,7 +636,7 @@ var _ json.Marshaler = (*RawMessage)(nil)
 
 信道与映射一样，也需要通过 `make` 来分配内存。其结果值充当了对底层数据结构的引用。 若提供了一个可选的整数形参，它就会为该信道设置缓冲区大小。默认值是零，表示不带缓冲的或同步的信道。
 
-```
+```go
 ci := make(chan int)            // 整数类型的无缓冲信道
 cj := make(chan int, 0)         // 整数类型的无缓冲信道
 cs := make(chan *os.File, 100)  // 指向文件指针的带缓冲信道
@@ -646,7 +646,7 @@ cs := make(chan *os.File, 100)  // 指向文件指针的带缓冲信道
 
 信道有很多惯用法，我们从这里开始了解。在上一节中，我们在后台启动了排序操作。 信道使得启动的Go程等待排序完成。
 
-```
+```go
 c := make(chan int)  // 分配一个信道
 // 在Go程中启动排序。当它完成后，在信道上发送信号。
 go func() {
@@ -661,7 +661,7 @@ doSomethingForAWhile()
 
 带缓冲的信道可被用作信号量，例如限制吞吐量。在此例中，进入的请求会被传递给 `handle`，它从信道中接收值，处理请求后将值发回该信道中，以便让该 “信号量”准备迎接下一次请求。信道缓冲区的容量决定了同时调用 `process` 的数量上限，因此我们在初始化时首先要填充至它的容量上限。
 
-```
+```go
 var sem = make(chan int, MaxOutstanding)
 
 func handle(r *Request) {
@@ -682,7 +682,7 @@ func Serve(queue chan *Request) {
 
 然而，它却有个设计问题：尽管只有 `MaxOutstanding` 个Go程能同时运行，但 `Serve` 还是为每个进入的请求都创建了新的Go程。其结果就是，若请求来得很快， 该程序就会无限地消耗资源。为了弥补这种不足，我们可以通过修改 `Serve` 来限制创建Go程，这是个明显的解决方案，但要当心我们修复后出现的Bug。
 
-```
+```go
 func Serve(queue chan *Request) {
 	for req := range queue {
 		sem <- 1
@@ -696,7 +696,7 @@ func Serve(queue chan *Request) {
 
 Bug出现在Go的 `for` 循环中，该循环变量在每次迭代时会被重用，因此 `req` 变量会在所有的Go程间共享，这不是我们想要的。我们需要确保 `req` 对于每个Go程来说都是唯一的。有一种方法能够做到，就是将 `req` 的值作为实参传入到该Go程的闭包中：
 
-```
+```go
 func Serve(queue chan *Request) {
 	for req := range queue {
 		sem <- 1
@@ -710,7 +710,7 @@ func Serve(queue chan *Request) {
 
 比较前后两个版本，观察该闭包声明和运行中的差别。 另一种解决方案就是以相同的名字创建新的变量，如例中所示：
 
-```
+```go
 func Serve(queue chan *Request) {
 	for req := range queue {
 		req := req // 为该Go程创建 req 的新实例。
@@ -733,7 +733,7 @@ req := req
 
 回到编写服务器的一般问题上来。另一种管理资源的好方法就是启动固定数量的 `handle` Go程，一起从请求信道中读取数据。Go程的数量限制了同时调用 `process` 的数量。`Serve` 同样会接收一个通知退出的信道， 在启动所有Go程后，它将阻塞并暂停从信道中接收消息。
 
-```
+```go
 func handle(queue chan *Request) {
 	for r := range queue {
 		process(r)
@@ -755,7 +755,7 @@ func Serve(clientRequests chan *Request, quit chan bool) {
 
 让我们看看这个理想化的例子。我们在对一系列向量项进行极耗资源的操作， 而每个项的值计算是完全独立的。
 
-```
+```go
 type Vector []float64
 
 // 将此操应用至 v[i], v[i+1] ... 直到 v[n-1]
@@ -769,7 +769,7 @@ func (v Vector) DoSome(i, n int, u Vector, c chan int) {
 
 我们在循环中启动了独立的处理块，每个CPU将执行一个处理。 它们有可能以乱序的形式完成并结束，但这没有关系； 我们只需在所有Go程开始后接收，并统计信道中的完成信号即可。
 
-```
+```go
 const NCPU = 4  // CPU核心数
 
 func (v Vector) DoAll(u Vector) {
@@ -793,7 +793,7 @@ func (v Vector) DoAll(u Vector) {
 
 库例程通常需要向调用者返回某种类型的错误提示。之前提到过，Go语言的多值返回特性， 使得它在返回常规的值时，还能轻松地返回详细的错误描述。按照约定，错误的类型通常为 `error`，这是一个内建的简单接口。
 
-```
+```go
 type error interface {
 	Error() string
 }
@@ -801,7 +801,7 @@ type error interface {
 
 库的编写者通过更丰富的底层模型可以轻松实现这个接口，这样不仅能看见错误， 还能提供一些上下文。例如，`os.Open` 可返回一个 `os.PathError`。
 
-```
+```go
 // PathError 记录一个错误以及产生该错误的路径和操作。
 type PathError struct {
 	Op string    // "open"、"unlink" 等等。
@@ -826,7 +826,7 @@ open /etc/passwx: no such file or directory
 
 若调用者关心错误的完整细节，可使用类型选择或者类型断言来查看特定错误，并抽取其细节。 对于 `PathErrors`，它应该还包含检查内部的 `Err` 字段以进行可能的错误恢复。
 
-```
+```go
 for try := 0; try < 2; try++ {
 	file, err = os.Create(filename)
 	if err == nil {
@@ -856,7 +856,7 @@ for try := 0; try < 2; try++ {
 
 `recover` 的一个应用就是在服务器中终止失败的Go程而无需杀死其它正在执行的Go程。
 
-```
+```go
 func server(workChan <-chan *Work) {
 	for work := range workChan {
 		go safelyDo(work)
@@ -879,7 +879,7 @@ func safelyDo(work *Work) {
 
 通过恰当地使用恢复模式，`do` 函数（及其调用的任何代码）可通过调用 `panic` 来避免更坏的结果。我们可以利用这种思想来简化复杂软件中的错误处理。 让我们看看 `regexp` 包的理想化版本，它会以局部的错误类型调用 `panic` 来报告解析错误。以下是一个 `error` 类型的 `Error` 方法和一个 `Compile` 函数的定义：
 
-```
+```go
 // Error 是解析错误的类型，它满足 error 接口。
 type Error string
 func (e Error) Error() string {
@@ -909,7 +909,7 @@ func Compile(str string) (regexp *Regexp, err error) {
 
 通过适当的错误处理，`error` 方法（由于它是个绑定到具体类型的方法， 因此即便它与内建的 `error` 类型名字相同也没有关系） 能让报告解析错误变得更容易，而无需手动处理回溯的解析栈：
 
-```
+```go
 if pos == 0 {
 	re.error("'*' illegal at start of expression")
 }
