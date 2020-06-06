@@ -115,3 +115,15 @@ This next Playbook will take care of some common server setup tasks, such as set
       apt: update_cache=yes upgrade=dist
 ```
 
+
+
+当执行playbook时，playbook其实就是自动调用了setup模块从而执行了"[Gathering Facts]"任务，所以我们可以通过手动执行setup模块查看"[Gathering Facts]"任务收集到的信息
+
+tags http://www.zsythink.net/archives/2641
+提示用户输入信息 vars_prompt http://www.zsythink.net/archives/2680
+内置变量 http://www.zsythink.net/archives/2715
+错误处理 block rescue always http://www.zsythink.net/archives/2836
+filters处理数据 http://www.zsythink.net/archives/2862
+include http://www.zsythink.net/archives/2962 http://www.zsythink.net/archives/2977
+ansible-vault http://www.zsythink.net/archives/3250
+"任务委派"，让某个任务在指定的主机上执行 delegate_to http://www.zsythink.net/archives/3277
