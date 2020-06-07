@@ -28,6 +28,7 @@ CTRL+O              # 类似回车，但是会显示下一行历史
 CTRL+P              # 移动到命令历史的上一行，同 <Up>
 CTRL+R              # 历史命令反向搜索，使用 CTRL+G 退出搜索
 CTRL+S              # 历史命令正向搜索，使用 CTRL+G 退出搜索
+                            # XON/XOFF功能会占用该快捷键，使用命令 stty -ixon 禁用
 CTRL+T              # 交换前后两个字符
 CTRL+U              # 删除字符到行首
 CTRL+V              # 输入字符字面量，先按 CTRL+V 再按任意键
