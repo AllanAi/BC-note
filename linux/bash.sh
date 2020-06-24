@@ -58,6 +58,8 @@ echo $SHELL         # 显示你在使用什么 SHELL
 
 bash                # 使用 bash，用 exit 返回
 which bash          # 搜索 $PATH，查找哪个程序对应命令 bash
+                    # 判断命令是否存在，建议使用 command -v 或 hash 或 type
+                    # https://stackoverflow.com/questions/592620
 whereis bash        # 搜索可执行，头文件和帮助信息的位置，使用系统内建数据库
 whatis bash         # 查看某个命令的解释，一句话告诉你这是干什么的
 
@@ -653,6 +655,7 @@ awk '$6 ~ /FIN/' file              # 打印第6列包含FIN的行
 awk '$6 !~ /FIN/' file             # 打印第6列不包含FIN的行
 awk 'NR!=1{print > $6}' file       # 按第6列分隔到不同文件，NR!=1表示不处理表头
 awk 'length>80' file               # 打印长度大于80的行
+awk '/str/ {print NR; exit}' file  # 打印文件中首次出现str的行号
 awk 'NR!=1{if($6 ~ /TIME|ESTABLISHED/) print > "1.txt"; else if($6 ~ /LISTEN/) print > "2.txt"; else print > "3.txt" }' netstat.txt
 awk 'NR!=1{a[$6]++;} END {for (i in a) print i ", " a[i];}' netstat.txt
 

@@ -40,6 +40,12 @@ tail -f sys.log | perl -pe 's/(DEBUG)|(INFO)|(ERROR)/\e[1;34m$1\e[0m\e[1;33m$2\e
 
 https://blog.csdn.net/qq_27686779/article/details/81180254
 
+### tail -F
+
+tail -f 等同于--follow=descriptor，根据文件描述符进行追踪，当文件改名或被删除，追踪停止
+
+tail -F 等同于--follow=name  --retry，根据文件名进行追踪，并保持重试，即该文件被删除或改名后，如果再次创建相同的文件名，会继续追踪
+
 ## 编辑当前命令
 
 在默认的 Bash 环境下，只要在命令行中按下 `ctrl-x, ctrl-e` 就会把当前命令的内容调入到环境变量 `$EDITOR` 指示的编辑器(默认为 emacs)去编辑，编辑后保存退出就会立即执行。如果未安装 `Emacs` 编辑器，则报错 `-bash: emacs: command not found`。
@@ -108,4 +114,88 @@ find ./ -inum $inode -exec rm {} \;
 # 删除文件名含有空格的文件
 rm 'ab cd'
 ```
+
+## 字符串中包含换行符等
+
+```shell
+STR=$'Hello\nWorld' # single quotes
+echo "$STR" # double quotes
+Hello
+World
+```
+
+```
+   Words of the form $'string' are treated specially.  The word expands to
+   string, with backslash-escaped characters replaced as specified by  the
+   ANSI  C  standard.  Backslash escape sequences, if present, are decoded
+   as follows:
+          \a     alert (bell)
+          \b     backspace
+          \e
+          \E     an escape character
+          \f     form feed
+          \n     new line
+          \r     carriage return
+          \t     horizontal tab
+          \v     vertical tab
+          \\     backslash
+          \'     single quote
+          \"     double quote
+          \nnn   the eight-bit character whose value is  the  octal  value
+                 nnn (one to three digits)
+          \xHH   the  eight-bit  character  whose value is the hexadecimal
+                 value HH (one or two hex digits)
+          \cx    a control-x character
+
+   The expanded result is single-quoted, as if the  dollar  sign  had  not
+   been present.
+
+   A double-quoted string preceded by a dollar sign ($"string") will cause
+   the string to be translated according to the current  locale.   If  the
+   current  locale  is  C  or  POSIX,  the dollar sign is ignored.  If the
+   string is translated and replaced, the replacement is double-quoted.
+```
+
+https://stackoverflow.com/questions/3005963/how-can-i-have-a-newline-in-a-string-in-sh
+
+## 打印管道中间结果
+
+`tail log.txt | tee /dev/tty | grep ERROR`
+
+https://stackoverflow.com/questions/570984
+
+## 管道中使用 curl
+
+不支持：`grep http file.txt | curl`
+
+可以使用：`curl "$(grep http file.txt)"`
+
+https://unix.stackexchange.com/questions/323604
+
+## 判断文件中是否包含指定字符串
+
+```shell
+if grep -q SomeString "$File"; then
+  Some Actions # SomeString was found
+fi
+```
+
+Add `-q` option when you don't need the string displayed when it was found.
+
+The `grep` command returns 0 or 1 in the exit code depending on the result of search. 0 if something was found; 1 otherwise.
+
+https://stackoverflow.com/questions/11287861
+
+## Ubuntu Shell 语法报错：Syntax error: Bad for loop variable
+
+例如：`for((i=1;i<=9;i++));do`
+
+以上代码对于标准的bash来说没有错误，原因在于系统默认用的是dash，所以报错。
+原因是Ubuntu为了加快开机速度，用dash代替了bash，所以导致了错误。wiki 里面有官方的解释，https://wiki.ubuntu.com/DashAsBinSh，主要原因是dash更小，运行更快，还与POSIX兼容。
+取消dash办法：sudo dpkg-reconfigure dash 执行命令后在界面选项中选No，回车确定就OK了。
+检查是否已切换到bash上：echo $SHELL ,如是/bin/bash即切换成功。
+
+另一种解决方法：使用`bash some.sh`替代 `sh some.sh`
+
+https://blog.csdn.net/q315099997/article/details/53158353
 
