@@ -399,6 +399,8 @@ exp1 -o exp2              # exp1 和 exp2 有一个为真就返回真（POSIX XS
 str1 = str2               # 判断字符串相等，如 [ "$x" = "$y" ] && echo yes
                           # 为了可移植性，不要使用==，因为POSIX默认不支持，它只是bash的扩展
 str1 != str2              # 判断字符串不等，如 [ "$x" != "$y" ] && echo yes
+str =~ regex              # 判断字符串是否匹配正则表达式；使用 BASH_REMATCH 引用匹配项 https://stackoverflow.com/questions/19737675
+                          # re="http://([^/]+)/"; if [[ $name =~ $re ]]; then echo ${BASH_REMATCH[1]}; fi
 str1 < str2               # 字符串小于，如 [ "$x" \< "$y" ] && echo yes
 str2 > str2               # 字符串大于，注意 < 或 > 是字面量，输入时要加反斜杆
 -n str1                   # 判断字符串不为空（长度大于零）
