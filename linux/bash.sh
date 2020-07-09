@@ -723,6 +723,11 @@ sed -n '2,5p' file                 # 打印文件第二到第五行
 # 所以mac下可以使用如下命令完成替换操作：sed -i '' 's/find/replace/g' file
 # https://blog.csdn.net/cuiaamay/article/details/49495885
 
+# 修改文件后缀
+for i in `ls -1`
+do
+  mv $i `echo $i | sed 's/\.txt$/.text/'`
+done
 
 ##############################################################################
 ## 排序 - sort

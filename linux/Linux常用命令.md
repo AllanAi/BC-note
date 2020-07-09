@@ -237,6 +237,40 @@ PS1　基本提示符，对于root用户是#，对于普通用户是$
 - status time (ctime)：文件的状态（权限、属性）更新就会更新；
 - access time (atime)：读取文件时就会更新。
 
+## 链接文件
+
+https://www.linode.com/docs/tools-reference/tools/create-file-system-links-with-ln/
+
+The `ln` command creates **links** which point to other objects in the file system. Links are similar to, but not the same as, **aliases**. Links may point to files, directories, or other links.
+
+`ln` can create two different types of links:
+
+- **Symbolic links** (or **symlinks**) are pointers that only contain a reference to the location of the target object; they inherit all other properties from the linked file. These are the easiest links to understand and are the most commonly used.
+
+- **Hard links** create a new file that points to the contents of the original file. If the name or location of the original file is changed, the hard link to it will still function. It is impossible to create hard links to objects that are on different disk devices or file systems. Hard links cannot point to directories.
+
+![f7Ijz](images/f7Ijz.jpg)
+
+https://askubuntu.com/questions/108771
+
+### Symbolic links
+
+`ln -s <from> <to>`
+
+If you do not specify the second argument, `ln` will make a link to your current directory.
+
+If you want to keep your web server configuration files in version control, so that they can be easily updated and shared between projects and servers, you can keep the files in a Git repository in your home directory and make symlinks to the NGINX or Apache configuration directories:
+
+```shell
+mkdir ~/nginx-configs
+sudo mv /etc/nginx/conf.d/* ~/nginx-configs
+cd ~/nginx-configs && git init && git add --all && git commit
+sudo ln -s /home/username/nginx-configs/ /etc/nginx/conf.d/
+sudo systemctl restart nginx
+```
+
+You can also create symbolic links with relative paths.
+
 ## 文件与目录的基本操作
 
 ### 1. ls
@@ -557,7 +591,7 @@ gzip 是 Linux 使用最广的压缩指令，可以解开 compress、zip 与 gzi
 
 有 9 个不同的压缩等级可以使用。
 
-可以使用 zcat、zmore、zless 来读取压缩文件的内容。
+可以使用 `zcat`、`zmore`、`zless`、`zgrep` 来读取压缩文件的内容。
 
 ```
 $ gzip [-cdtv#] filename
@@ -603,13 +637,14 @@ $ tar [-z|-j|-J] [xv] [-f 已有的 tar 文件] [-C 目录]    ==解压缩
 -Z ：使用 compress；
 -j ：使用 bzip2；
 -J ：使用 xz；
+-a ：自动根据后缀判断压缩类型
 -c ：新建打包文件；
 -t ：查看打包文件里面有哪些文件；
 -x ：解打包或解压缩的功能；
 -v ：在压缩/解压缩的过程中，显示正在处理的文件名；
 -r ：向压缩归档文件末尾追加文件；
 -u ：更新原压缩包中的文件；
--f : filename：要处理的文件；//作为最后一个参数，后面只能接档案名。
+-f ： filename：要处理的文件；//作为最后一个参数，后面只能接档案名。
 -C 目录 ： 在特定目录解压缩。
 ```
 
