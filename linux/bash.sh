@@ -55,6 +55,9 @@ CTRL+X CTRL+E       # 用你指定的编辑器，编辑当前命令
 exit                # 退出当前登陆
 env                 # 显示环境变量
 echo $SHELL         # 显示你在使用什么 SHELL
+printf              # 格式化输出
+                    # printf "Your current working directory is: \x1b[32m\n %s\n" $PWD
+                    # printf -v myvar "%d\n" "0xF9" 将输出结果赋值到myvar
 
 bash                # 使用 bash，用 exit 返回
 which bash          # 搜索 $PATH，查找哪个程序对应命令 bash
@@ -377,6 +380,7 @@ function myfunc() {
 myfunc                    # 调用函数 myfunc 
 myfunc arg1 arg2 arg3     # 带参数的函数调用
 myfunc "$@"               # 将所有参数传递给函数
+myfunc "${@:2}"           # 将除了第一个参数之外的所有参数传递给函数
 myfunc "${array[@]}"      # 将一个数组当作多个参数传递给函数
 shift                     # 参数左移
 
@@ -565,10 +569,24 @@ until condition; do
     statements
 done
 
-# select 语句
+# select 语句，菜单
 select name [in list]; do
   statements that can use $name
 done
+
+echo "Enter the number corresponding to your favorite color:"
+select COLOR in blue yellow red green
+do
+  echo "Your selection is: $COLOR"
+  break
+done
+## Enter the number corresponding to your favorite color:
+## 1) blue
+## 2) yellow
+## 3) red
+## 4) green
+## #? 2
+## Your selection is: yellow
 
 # 无限循环
 while :
