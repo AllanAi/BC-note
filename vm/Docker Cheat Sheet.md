@@ -360,6 +360,20 @@ Docker 官方托管着自己的 [仓管中心](https://hub.docker.com/)，包含
 * [STOPSIGNAL](https://docs.docker.com/engine/reference/builder/#stopsignal) 设置停止容器时，向容器内发送的系统调用信号 (system call signal)。
 * [LABEL](https://docs.docker.com/config/labels-custom-metadata/) 将键值对元数据 (key/value metadata) 应用到镜像、容器或是守护进程。
 
+
+
+- **ADD** - copy files from a source on the host to the container’s own filesystem at the set destination.
+- **CMD** - execute a specific command within the container.
+- **ENTRYPOINT** - set a default application to be used every time a container is created with the image.
+- **ENV** - set environment variables.
+- **EXPOSE** - expose a specific port to enable networking between the container and the outside world.
+- **FROM** - define the base image used to start the build process.
+- **MAINTAINER** - define the full name and email address of the image creator.
+- **RUN** - central executing directive for Dockerfiles.
+- **USER** - set the UID (the username) that will run the container.
+- **VOLUME** - enable access from the container to a directory on the host machine.
+- **WORKDIR** - set the path where the command, defined with CMD, is to be executed.
+
 ### 教程
 
 * [Flux7's Dockerfile Tutorial](http://flux7.com/blogs/docker/docker-tutorial-series-part-3-automation-is-the-word-using-dockerfile/)
