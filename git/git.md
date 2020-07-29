@@ -99,6 +99,8 @@ https://stackoverflow.com/questions/3769137/use-git-log-command-in-another-folde
 
 例如：`git -C ~/foo status`
 
+git 2.0版本以下使用：`git --git-dir=<directory>/.git <command>`
+
 ## commit 历史中找回已删除文件
 
 https://stackoverflow.com/questions/7203515/how-to-find-a-deleted-file-in-the-project-commit-history
@@ -145,3 +147,74 @@ https://juejin.im/entry/5c24ecb6f265da61553ae35e
 
 2. 切换到没有对应commit的分支
 3. 在git窗口切换到commit所在分支，选中（可多选）需要提交的commit，然后右键Cherry-Pick即可。
+
+## Tag
+
+### 创建标签
+
+右键git log，选择`New Tag...`，输入标签名（前面加上v）
+
+Push界面中选中`Push Tags: All`
+
+### 删除标签
+
+```shell
+# 删除本地标签命令
+git tag -d v1.0.1
+# 删除远程标签命令
+git push origin :refs/tags/v1.0.1
+```
+
+## .gitignore not working
+
+The files/folder in your version control will not just delete themselves just because you added them to the `.gitignore`. They are already in the repository and you have to remove them. You can just do that with this:
+
+(**Remember to commit everything you've changed before you do this.**)
+
+```
+git rm -rf --cached .
+git add .
+```
+
+This removes all files from the repository and adds them back (this time respecting the rules in your `.gitignore`).
+
+https://stackoverflow.com/questions/25436312/gitignore-not-working/25436481
+
+## Git LFS
+
+Git LFS（Large File Storage, 大文件存储）是可以把音乐、图片、视频等指定的任意文件存在 Git 仓库之外，而在 Git 仓库中用一个占用空间 1KB 不到的文本指针来代替的小工具。
+
+### 安装
+
+下载 https://git-lfs.github.com/， 安装后运行 `git lfs install`
+
+### 使用
+
+1. 查看现有的文件追踪模式：`git lfs track`
+
+2. 添加要管理的大文件的文件类型，比如gz文件
+
+   运行命令：`git lfs track *.gz`
+
+   添加类型后，查看管理文件.gitattributes，可以发现.gitattributes中新增加一行：*.gz filter=lfs diff=lfs merge=lfs -text
+
+3. `git add .gitattributes`
+
+4. 对于之前未使用 Git LFS 追踪的文件，可以使用 [git lfs migrate](https://github.com/git-lfs/git-lfs/blob/master/docs/man/git-lfs-migrate.1.ronn?utm_source=gitlfs_site&utm_medium=doc_man_migrate_link&utm_campaign=gitlfs)命令
+
+5. 获取git lfs管理的所有文件列表：`git lfs ls-files `
+
+6. 添加大文件到git仓库，和其它添加方式一样
+
+   ```
+   git add my.gz
+   git commit -m "add gz file"
+   git push
+   ```
+
+7. 将代码 push 到远程仓库后，LFS 跟踪的文件会以『Git LFS』的形式显示
+
+8. clone 时 使用`git clone` 或 `git lfs clone`均可
+
+9. 查看帮助：git lfs help
+

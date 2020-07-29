@@ -199,3 +199,20 @@ https://stackoverflow.com/questions/11287861
 
 https://blog.csdn.net/q315099997/article/details/53158353
 
+## source 命令
+
+source命令也称为"点命令"，也就是一个点符号(.)，是bash的内部命令。
+
+功能：使Shell读入指定的Shell程序文件并依次执行文件中的所有语句，source命令通常用于重新执行刚修改的初始化文件，使之立即生效，而不必注销并重新登录。
+
+用法：source filename 或 . filename
+
+区别：
+
+- sh filename 或 ./filename 会建立一个子shell，在子shell中执行脚本里面的语句，该子shell继承父shell的环境变量，但子shell新建的、改变的变量不会被带回父shell。
+
+- source filename：这个命令其实只是简单地读取脚本里面的语句依次在当前shell里面执行，没有建立新的子shell。那么脚本里面所有新建、改变变量的语句都会保存在当前shell里面。
+
+举例：
+
+- 如果想通过脚本切换当前工作目录（使用cd命令），则需要使用 source filename，如果使用sh filename 或 ./filename，则只会改变子shell的工作目录，脚本执行完毕，当前的工作目录并不会改变。
