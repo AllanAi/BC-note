@@ -216,3 +216,51 @@ source命令也称为"点命令"，也就是一个点符号(.)，是bash的内�
 举例：
 
 - 如果想通过脚本切换当前工作目录（使用cd命令），则需要使用 source filename，如果使用sh filename 或 ./filename，则只会改变子shell的工作目录，脚本执行完毕，当前的工作目录并不会改变。
+
+## Help message for shell scripts
+
+Add your message with all the required information on top of your file, just right after the shebang.
+
+```bash
+#!/bin/bash
+###
+### my-script — does one thing well
+###
+### Usage:
+###   my-script <input> <output>
+###
+### Options:
+###   <input>   Input file to read.
+###   <output>  Output file to write. Use '-' for stdout.
+###   -h        Show this message.
+```
+
+Halfway done, now need to get this message in runtime with sed.
+
+```bash
+help() {
+    sed -rn 's/^### ?//;T;p' "$0"
+}
+```
+
+`$0` means a filename of a file that is being executed.
+
+A bit about the magic that is going here:
+
+- `s` — stands for substitute the following pattern;
+- `/` — keyword to define start/end of the pattern;
+- `^### ?` — match a string starting with ### and an optional space after;
+- `//` — there could be something between the slashes, but since nothing is here, replace the pattern with an empty string;
+- `T` — Jumps to the end of sed-script if no s/// has done a successful substitution;
+- `p` — Prints the result of the substitution.
+
+Now just call the `help` function if an arg `-h` or no args passed.
+
+```bash
+if [[ $# == 0 ]] || [[ "$1" == "-h" ]]; then
+    help
+    exit 1
+fi
+```
+
+https://samizdat.dev/help-message-for-shell-scripts/
