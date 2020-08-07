@@ -115,15 +115,91 @@ This next Playbook will take care of some common server setup tasks, such as set
       apt: update_cache=yes upgrade=dist
 ```
 
+## fetch with_fileglob
+
+All of the `with_*` looping mechanisms are local lookups unfortunately so there's no really clean way to do this in Ansible.
+
+What you can do is generate your fileglob by shelling out to the host and then registering the output and looping over the `stdout_lines` part of the output.
+
+```yaml
+- name    : get files in /path/
+  shell   : ls /path/*
+  register: path_files
+
+- name: fetch these back to the local Ansible host for backup purposes
+  fetch:
+    src : /path/"{{item}}"
+    dest: /path/to/backups/
+  with_items: "{{ path_files.stdout_lines }}"
+```
+
+https://stackoverflow.com/questions/33543551/is-there-with-fileglob-that-works-remotely-in-ansible
+
+## Copy
+
+### 使用with_items复制多个文件/目录
+
+```yaml
+- hosts: blocks
+  tasks:
+  - name: Ansible copy multiple files with_items
+    copy:
+      src: ~/{{item}}
+      dest: /tmp
+      mode: 0774
+    with_items:
+      ['hello1','hello2','hello3','sub_folder/hello4']
+```
+
+### 复制具有不同权限/目的地设置的多个文件
+
+```yaml
+- hosts: all
+  tasks:
+  - name: Copy multiple files in Ansible with different permissions
+    copy:
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
+      mode: "{{ item.mode }}"
+    with_items:
+      - { src: '/home/mdtutorials2/test1',dest: '/tmp/devops_system1', mode: '0777'}
+      - { src: '/home/mdtutorials2/test2',dest: '/tmp/devops_system2', mode: '0707'}
+      - { src: '/home/mdtutorials2/test3',dest: '/tmp2/devops_system3', mode: '0575'}
+```
+
+### 复制与pattern（通配符）匹配的文件夹中的所有文件
+
+```yaml
+- hosts: blocks
+  tasks:
+  - name: Ansible copy multiple files with wildcard matching.
+    copy:
+      src: "{{ item }}"
+      dest: /etc
+    with_fileglob:
+      - /tmp/hello*
+```
+
+### 复制查找到的文件
+
+```yaml
+- hosts: lnx
+  tasks:
+    - find: paths="/appl/scripts/inq" recurse=yes patterns="inq.Linux*"
+      register: file_to_copy
+    - copy: src={{ item.path }} dest=/usr/local/sbin/
+      owner: root
+      mode: 0775
+      with_items: "{{ files_to_copy.files }}"
+```
+
+https://www.ewhisper.cn/how-to-copy-files-and-directories-in-ansible.html
 
 
-当执行playbook时，playbook其实就是自动调用了setup模块从而执行了"[Gathering Facts]"任务，所以我们可以通过手动执行setup模块查看"[Gathering Facts]"任务收集到的信息
 
-tags http://www.zsythink.net/archives/2641
 提示用户输入信息 vars_prompt http://www.zsythink.net/archives/2680
 内置变量 http://www.zsythink.net/archives/2715
-错误处理 block rescue always http://www.zsythink.net/archives/2836
-filters处理数据 http://www.zsythink.net/archives/2862
+jinja2 filters处理数据 http://www.zsythink.net/archives/2862
 include http://www.zsythink.net/archives/2962 http://www.zsythink.net/archives/2977
 ansible-vault http://www.zsythink.net/archives/3250
-"任务委派"，让某个任务在指定的主机上执行 delegate_to http://www.zsythink.net/archives/3277
+
