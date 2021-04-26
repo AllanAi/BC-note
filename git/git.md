@@ -30,15 +30,15 @@ https://gist.github.com/chuyik/02d0d37a49edc162546441092efae6a1
 #### 走 HTTP 代理
 
 ```bash
-git config --global http.proxy "http://127.0.0.1:8080"
-git config --global https.proxy "http://127.0.0.1:8080"
+git config --global http.proxy "http://127.0.0.1:9910"
+git config --global https.proxy "http://127.0.0.1:9910"
 ```
 
 #### 走 socks5 代理（如 Shadowsocks）
 
 ```bash
-git config --global http.proxy "socks5://127.0.0.1:1080"
-git config --global https.proxy "socks5://127.0.0.1:1080"
+git config --global http.proxy "socks5://127.0.0.1:9909"
+git config --global https.proxy "socks5://127.0.0.1:9909"
 ```
 
 #### 取消设置
@@ -47,6 +47,14 @@ git config --global https.proxy "socks5://127.0.0.1:1080"
 git config --global --unset http.proxy
 git config --global --unset https.proxy
 ```
+
+#### 查看配置
+
+```bash
+git config --global --list
+```
+
+> cargo 默认使用此代理。
 
 ### 1.2 SSH 形式
 
@@ -217,4 +225,11 @@ Git LFS（Large File Storage, 大文件存储）是可以把音乐、图片、�
 8. clone 时 使用`git clone` 或 `git lfs clone`均可
 
 9. 查看帮助：git lfs help
+
+## 您的分支和 'origin/master' 出现了偏离
+
+```
+git fetch origin
+git reset --hard origin/master
+```
 

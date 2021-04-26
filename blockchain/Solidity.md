@@ -1,5 +1,7 @@
 # Solidity
 
+![Most Hated Survey Results](images/stacktoodeep.png)
+
 https://solidity.readthedocs.io/en/v0.7.3/index.html
 
 `uint` (*u*nsigned *int*eger of *256* bits)

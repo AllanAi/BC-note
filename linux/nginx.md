@@ -11,3 +11,8 @@
 
 测试nginx.conf文件：`nginx -t -c /etc/nginx/nginx.conf`
 
+安装：apt install nginx
+
+启动：systemctl start nginx
+
+退出：systemctl stop nginx

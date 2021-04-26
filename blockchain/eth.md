@@ -198,3 +198,5 @@ The Web3 Provider Endpoint for a local node is http://localhost:8545
 
 
 
+geth --datadir data/ --dev init eth-genesis.json
+geth --datadir data/ --nodiscover --rpc --rpccorsdomain=* --rpcapi web3,eth,debug,personal,net --vmdebug --dev console 2>>geth.log

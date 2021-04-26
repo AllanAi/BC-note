@@ -39,3 +39,9 @@ Google chrome
 - ⇟ Page Down（Fn+↓）
 - Home Fn+←
 - End Fn+→
+
+## 安装 Xcode
+
+- 安装 git https://git-scm.com/download/mac
+- 安装 brew https://docs.brew.sh/Installation
+- brew 安装过程中会安装 Xcode
