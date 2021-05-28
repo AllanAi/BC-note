@@ -19,6 +19,12 @@ https://github.com/rkalis/truffle-plugin-verify
 
 https://kalis.me/verify-truffle-smart-contracts-etherscan/
 
+```
+export https_proxy='https://127.0.0.1:9910'
+truffle run verify HiposwapV2Util --network rinkeby --license MIT
+https://rinkeby.etherscan.io/address/0xf96b50Cc8d8cF9a1240AbBb826F414f774cf0005#code
+```
+
 
 
 ## Box
@@ -39,6 +45,11 @@ https://github.com/IoBuilders/truffle-contract-size
 
 减少合约的大小的方法：https://soliditydeveloper.com/max-contract-size
 
+```
+truffle run contract-size
+truffle run contract-size --contracts ExampleContract1 ExampleContract2
+```
+
 
 
 ## Flattener
@@ -56,3 +67,8 @@ https://github.com/nomiclabs/truffle-flattener
 ## Deploy
 
 Deploy with Infura：https://medium.com/coinmonks/deploy-your-smart-contract-directly-from-truffle-with-infura-ba1e1f1d40c2
+
+```
+truffle migrate --network rinkeby --reset
+```
+

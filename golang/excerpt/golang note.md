@@ -213,7 +213,7 @@ func substring(source string, start int, end int) string {
 
 https://blog.csdn.net/psyuhen/article/details/51998223
 
-## Big Integer
+## Big Integer/Float
 
 math/big.Int
 
@@ -232,9 +232,49 @@ func (x *Int) Uint64()
 //支持json序列化，其他的序列化方式不支持
 func (x *Int) MarshalJSON() ([]byte, error)
 func (z *Int) UnmarshalJSON(text []byte) error
+
+i := big.NewInt(12345)
+f := new(big.Float).SetInt(i)
 ```
 
 https://medium.com/orbs-network/big-integers-in-go-14534d0e490d
+
+## time.After
+
+```go
+ticker := time.NewTicker(time.Second)
+for {
+  select {
+    case <-ticker.C:
+    	// do something
+    case <-time.After(5 * time.Second): // DON'T USE!!!
+    	return	// unreachable
+  }
+}
+```
+
+The code above will **never return**, because each time you execute `time.After(4 * time.Second)` you create a new timer channel.
+
+```go
+timeout := time.After(5 * time.Second)
+pollInt := time.Second
+
+for {
+    select {
+    case <-endSignal:
+        fmt.Println("The end!")
+        return
+    case <-timeout:
+        fmt.Println("There's no more time to this. Exiting!")
+        return
+    default:
+        fmt.Println("still waiting")
+    }
+    time.Sleep(pollInt)
+}
+```
+
+https://stackoverflow.com/questions/39212333/how-can-i-use-time-after-and-default-in-golang
 
 ## 高并发数
 
@@ -394,3 +434,122 @@ func (f *Func) FileLine(pc uintptr) (file string, line int)
 
 https://studygolang.com/articles/2327
 
+## pprof 检查内存泄漏
+
+```go
+import _ "net/http/pprof"
+go func() {
+  // web:	http://localhost:6061/debug/pprof
+  // terminal:
+  // go tool pprof -http=:8081 http://localhost:6061/debug/pprof/profile
+  // curl http://localhost:6061/debug/pprof/trace?debug=1 > trace.file
+  // go tool trace -http=:8081 trace.file
+  fmt.Println(http.ListenAndServe("localhost:6061", nil))
+}()
+```
+
+https://colobu.com/2019/08/20/use-pprof-to-compare-go-memory-usage/
+
+像Java的一些profiler工具一样， `pprof`也可以比较两个时间点的分配的内存的差值，通过比较差值，就容易看到哪些地方产生的内存"残留"的比较多，没有被内存释放，极有可能是内存泄漏的点。
+
+1. 导出**时间点1**的堆的profile: `curl -s http://localhost:6061/debug/pprof/heap > base.heap`, 我们把它作为基准点
+2. 喝杯茶，等待一段时间后导出**时间点2**的堆的profile: `curl -s http://localhost:6061/debug/pprof/heap > current.heap`
+3. 现在你就可以比较这两个时间点的堆的差异了: `go tool pprof --base base.heap current.heap`
+4. 或者你直接使用命令打开web界面: `go tool pprof --http :9090 --base base.heap current.heap`
+
+## 执行静态分析
+
+https://www.alexedwards.net/blog/an-overview-of-go-tooling
+
+`go vet`工具*会对*您的代码进行静态分析，并警告您某些*可能*与您的代码有问题但编译器不会处理的问题。
+
+```bash
+$ go vet foo.go     # Vet the foo.go file
+$ go vet .          # Vet all files in the current directory
+$ go vet ./...      # Vet all files in the current directory and sub-directories
+$ go vet ./foo/bar  # Vet all files in the ./foo/bar directory
+```
+
+# 程序设计
+
+https://tomotoes.com/blog/the-top-10-most-common-mistakes-ive-seen-in-go-projects/
+
+## 更完美的封装
+
+一个常见错误是将文件名传递给函数。
+
+假设我们实现一个函数来计算文件中的空行数。最初的实现是这样的：
+
+```go
+func count(filename string) (int, error) {
+  file, err := os.Open(filename)
+  if err != nil {
+    return 0, errors.Wrapf(err, "unable to open %s", filename)
+  }
+  defer file.Close()
+
+  scanner := bufio.NewScanner(file)
+  count := 0
+  for scanner.Scan() {
+    if scanner.Text() == "" {
+      count++
+    }
+  } 
+  return count, nil
+}
+```
+
+假设我们希望在此函数之上实现单元测试，并使用普通文件，空文件，具有不同编码类型的文件等进行测试。代码很容易变得非常难以维护。
+
+此外，如果我们想对于`HTTP Body`实现相同的逻辑，将不得不为此创建另一个函数。
+
+Go 设计了两个很棒的接口：`io.Reader` 和 `io.Writer` (译者注：常见 IO 命令行，文件，网络等)
+
+所以可以传递一个抽象数据源的`io.Reader`，而不是传递文件名。
+
+仔细想一想统计的只是文件吗？一个 HTTP 正文？字节缓冲区？
+
+答案并不重要，重要的是无论`Reader`读取的是什么类型的数据，我们都会使用相同的`Read`方法。
+
+在我们的例子中，甚至可以缓冲输入以逐行读取它（使用`bufio.Reader`及其`ReadLine`方法）：
+
+```go
+func count(reader *bufio.Reader) (int, error) {
+  count := 0
+  for {
+    line, _, err := reader.ReadLine()
+    if err != nil {
+      switch err {
+      default:
+        return 0, errors.Wrapf(err, "unable to read")
+      case io.EOF:
+        return count, nil
+      }
+    }
+    if len(line) == 0 {
+      count++
+    }
+  }
+}
+```
+
+打开文件的逻辑现在交给调用`count`方：
+
+```go
+file, err := os.Open(filename)
+if err != nil {
+  return errors.Wrapf(err, "unable to open %s", filename)
+}
+defer file.Close()
+count, err := count(bufio.NewReader(file))
+```
+
+无论数据源如何，都可以调用`count`。并且，还将促进单元测试，因为可以从字符串创建一个`bufio.Reader`，这大大提高了效率。
+
+```go
+count, err := count(bufio.NewReader(strings.NewReader("input")))
+```
+
+## Channel 应用模式
+
+https://colobu.com/2018/03/26/channel-patterns/

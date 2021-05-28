@@ -628,6 +628,25 @@ The `iota` is really an index operator for the current line in the constant decl
 
 实现 UnmarshalJSON 和 MarshalJSON 两个方法
 
+**Generic representation**
+
+https://eli.thegreenplace.net/2020/representing-json-structures-in-go/
+
+```go
+var m map[string]interface{}
+if err := json.Unmarshal(jsonText, &m); err != nil {
+  log.Fatal(err)
+}
+
+fruits := m["fruits"].([]interface{})
+for _, f := range fruits {
+  fruit := f.(map[string]interface{})
+  fmt.Printf("%s -> %f\n", fruit["name"], fruit["sweetness"])
+}
+```
+
+
+
 ## 反射
 
 ```go
@@ -895,7 +914,7 @@ goroutine是Go语言实现的用户态线程，主要用来解决操作系统线
 - goroutine是用户态线程，其创建和切换都在用户代码中完成而无需进入操作系统内核，所以其开销要远远小于系统线程的创建和切换；
 - goroutine启动时默认栈大小只有2k，这在多数情况下已经够用了，即使不够用，goroutine的栈也会自动扩大，同时，如果栈太大了过于浪费它还能自动收缩，这样既没有栈溢出的风险，也不会造成栈内存空间的大量浪费。
 
-CSP，全称Communicating Sequential Processes，意为通讯顺序进程，它的核心观念是将两个并发执行的实体通过通道channel连接起来，所有的消息都通过channel传输。
+CSP，全称Communicating Sequential Processes，意为通讯顺序进程，它的核心观念是将两个并发执行的实体通过通道channel连接起来，所有的消息都通过channel传输。 『 Don't communicate by sharing memory; share memory by communicating 』
 
 GPM代表了三个角色，分别是Goroutine、Processor、Machine。
 

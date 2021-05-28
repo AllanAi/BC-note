@@ -203,3 +203,10 @@ jinja2 filters处理数据 http://www.zsythink.net/archives/2862
 include http://www.zsythink.net/archives/2962 http://www.zsythink.net/archives/2977
 ansible-vault http://www.zsythink.net/archives/3250
 
+## Python 过期警告
+
+[DEPRECATION WARNING]: Distribution Ubuntu 19.10 on host mainnet-12 should use /usr/bin/python3, but is using /usr/bin/python for backward compatibility with prior Ansible releases. A future Ansible release will default to using the discovered platform python for this host. See https://docs.ansible.com/ansible/2.9/reference_appendices/interpreter_discovery.html for more information. This feature will be removed in version 2.12. Deprecation warnings can be disabled by setting deprecation_warnings=False in ansible.cfg.
+
+使用apt install ansible安装ansible时，会自动安装python2.7，这时使用其他机器的ansible控制这台机器的时候，就会报上面的警告，因为ansible默认优先使用/usr/bin/python作为python解释器，这时只要使用apt purge python2.7-minimal卸载python2.7即可。
+如果还需要ansible，可以先卸载apt remove ansible，然后使用pip3 install ansible安装：https://docs.ansible.com/ansible/latest/reference_appendices/python_3_support.html
+

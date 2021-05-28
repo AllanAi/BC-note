@@ -46,6 +46,13 @@ tail -f 等同于--follow=descriptor，根据文件描述符进行追踪，当�
 
 tail -F 等同于--follow=name  --retry，根据文件名进行追踪，并保持重试，即该文件被删除或改名后，如果再次创建相同的文件名，会继续追踪
 
+## 目录跳转
+
+```shell
+cd	# 跳转到$HOME
+cd - # 回到上一次的工作目录
+```
+
 ## 编辑当前命令
 
 在默认的 Bash 环境下，只要在命令行中按下 `ctrl-x, ctrl-e` 就会把当前命令的内容调入到环境变量 `$EDITOR` 指示的编辑器(默认为 emacs)去编辑，编辑后保存退出就会立即执行。如果未安装 `Emacs` 编辑器，则报错 `-bash: emacs: command not found`。
@@ -264,3 +271,66 @@ fi
 ```
 
 https://samizdat.dev/help-message-for-shell-scripts/
+
+## 挂载磁盘
+
+```shell
+fdisk -l	# 查看磁盘
+mkfs.ext4 /dev/sdb	# 格式化磁盘
+```
+
+```shell
+# 挂载磁盘
+vim /etc/fstab
+/dev/sdb                /home/sdb               ext4    defaults        0 0
+```
+
+```shell
+mount -a	# 重新读取/etc/fstab
+df -h	# 查看当前所有文件系统可用空间和使用情况
+```
+
+https://blog.51cto.com/zqxiang/1572652
+
+https://www.cnblogs.com/Life-Record/p/5900252.html
+
+## 查看文件夹中文件/文件夹的大小
+
+```
+du -sh *
+du -sh .[!.]* *
+du -- display disk usage statistics
+```
+
+## 挂了代理之后，使用hosts中的别名建立ssh连接时报错
+
+`kex_exchange_identification: Connection closed by remote host`
+这是因为代理服务器没有本机hosts中的映射，从而导致连接失败
+直接使用ip就没有问题
+
+```sh
+function sshx(){
+        params=("$@")
+        i=0
+        while [[ i -lt ${#params[@]} ]]; do
+                if echo "${params[i]}" | grep @; then
+                        #info=($(echo "${params[i]}" | sed 's/@/ /g'))
+                        info=(${params[i]/@/ })
+                        info[1]=$(dscacheutil -q host -a name "${info[1]}" | grep ip | cut -d' ' -f2)
+                        params[i]=${info[0]}@${info[1]}
+                fi
+                i=$((i + 1))
+        done
+        ssh -o "ProxyCommand nc -v -x 127.0.0.1:9909 %h %p" ${params[*]}
+}
+```
+
+## ubuntu 19.10 官方源不提供支持的问题
+
+```
+vi /etc/apt/sources.list
+:%s/mirrors.linode/old-releases.ubuntu/g
+apt update
+```
+
+https://www.digitalocean.com/community/questions/i-cannot-update-from-19-04-to-19-10-no-longer-has-a-release-file

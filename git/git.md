@@ -13,6 +13,9 @@ mkdir ~/.ssh //in case that the folder doesnt exist...
 cd ~/.ssh
 
 ssh-keygen -t rsa -C "youremail@somewhere.gr"
+
+// -f 设置文件名
+ssh-keygen -t ed25519 -C "gateswapbot" -f gateswapbot
 ```
 
 然后一路回车即可。
@@ -99,6 +102,10 @@ git config --local  --list
 
 https://segmentfault.com/a/1190000017794371
 
+## checkout远程分支
+
+`git checkout -b dev origin/dev`
+
 ## 指定 git 命令运行目录
 
 https://stackoverflow.com/questions/3769137/use-git-log-command-in-another-folder
@@ -141,6 +148,7 @@ https://blog.csdn.net/qq_38233837/article/details/84833066
 ```bash
 # 查看所有 git 操作历史
 git reflog
+git reflog --date=iso # 显示操作时间
 # 切换到最后的 commit 
 git reset --hard HEAD@{7}
 ```
@@ -226,10 +234,113 @@ Git LFS（Large File Storage, 大文件存储）是可以把音乐、图片、�
 
 9. 查看帮助：git lfs help
 
+10. 下载指定文件：`git lfs pull --include "fullnode/prod/0.7.2/linux/bnbchaind"`
+
 ## 您的分支和 'origin/master' 出现了偏离
 
 ```
 git fetch origin
 git reset --hard origin/master
 ```
+
+## Undo uncommitted changes
+
+https://stackoverflow.com/questions/14075581/git-undo-all-uncommitted-or-unsaved-changes
+
+```
+git status	// 一般会包含相应提示，如怎样回滚和提交
+git reset	// unstage all files which have been staged with `git add`
+git checkout .	// revert all local uncommitted changes, equivalent to `git reset --hard HEAD`
+git clean -fdx	// remove all local untracked files
+```
+
+```
+git stash -u && git stash drop	// -u is short for --include-untracked
+```
+
+## git alias
+
+查看 git 默认的命令 alias：`git config --list`
+
+```
+alias.s=status
+alias.a=!git add . && git status
+alias.au=!git add -u . && git status
+alias.aa=!git add . && git add -u . && git status
+alias.c=commit
+alias.cm=commit -m
+alias.ca=commit --amend
+alias.ac=!git add . && git commit
+alias.acm=!git add . && git commit -m
+alias.l=log --graph --all --pretty=format:'%C(yellow)%h%C(cyan)%d%Creset %s %C(white)- %an, %ar%Creset'
+alias.ll=log --stat --abbrev-commit
+alias.lg=log --color --graph --pretty=format:'%C(bold white)%h%Creset -%C(bold green)%d%Creset %s %C(bold green)(%cr)%Creset %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+alias.llg=log --color --graph --pretty=format:'%C(bold white)%H %d%Creset%n%s%n%+b%C(bold blue)%an <%ae>%Creset %C(bold green)%cr (%ci)' --abbrev-commit
+alias.d=diff
+alias.master=checkout master
+alias.spull=svn rebase
+alias.spush=svn dcommit
+alias.alias=!git config --list | grep 'alias\.' | sed 's/alias\.\([^=]*\)=\(.*\)/\1\     => \2/' | sort
+```
+
+常用命令：
+
+```
+git s
+git acm
+git l
+git lg
+git llg
+```
+
+## Rebase
+
+https://www.cnblogs.com/zhaoyingjie/p/10259715.html
+
+```
+git rebase -i HEAD~4	// 对最近的 4 个 commit 进行 rebase 操作
+git rebase -i 9fbf10	// 对 commit id 前几位为 9fbf10 的 commit 之后的 commit 进行 rebase
+```
+
+```
+pick abc8023 Merge PR ：Fix incorrect account nonce in watch db (#876)
+pick e512b75 Merge PR: add txpool (#868)
+pick 3efe19f Merge PR: add check of watch db enabled in handler (#877)
+pick df1f078 Merge PR ：fix failed to get block height via the keywrod block.number (#878)
+
+# Rebase 3ac6fe2..df1f078 onto df1f078 (4 commands)
+#
+# Commands:
+# p, pick <commit> = use commit	保留该commit
+# r, reword <commit> = use commit, but edit the commit message
+# e, edit <commit> = use commit, but stop for amending
+# s, squash <commit> = use commit, but meld into previous commit	与上一个commit合并，注释也合并
+# f, fixup <commit> = like "squash", but discard this commit's log message 与上一个commit合并，丢弃注释
+# x, exec <command> = run command (the rest of the line) using shell
+# b, break = stop here (continue rebase later with 'git rebase --continue')
+# d, drop <commit> = remove commit	丢弃该commit
+# l, label <label> = label current HEAD with a name
+# t, reset <label> = reset HEAD to a label
+# m, merge [-C <commit> | -c <commit>] <label> [# <oneline>]
+# .       create a merge commit using the original merge commit's
+# .       message (or the oneline, if no original merge commit was
+# .       specified). Use -c <commit> to reword the commit message.
+#
+# These lines can be re-ordered; they are executed from top to bottom.
+#
+# If you remove a line here THAT COMMIT WILL BE LOST.
+#
+# However, if you remove everything, the rebase will be aborted.
+#
+# Note that empty commits are commented out
+```
+
+编辑后保存退出，git 会自动压缩提交历史，如果有冲突，记得解决冲突后，使用 `git rebase --continue` 重新回到当前的 git 压缩过程。最后使用` git push -f`推送到远程仓库。
+
+## 学习资料
+
+- [Learn Git Branching](https://learngitbranching.js.org/) 知名的 Git 教学游戏，通过可视化的动画和交互，帮助理解所有分支操作的概念和方法。如果你打算自学，这些命令会用得上：`show solution`、`levels`、`undo`、`reset`。
+
+- [Pro Git](https://git-scm.com/book/zh/v2) 专业全面的 git 教程
+- [Git 进阶指南](https://gb.yekai.net/)
 

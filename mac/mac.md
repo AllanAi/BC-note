@@ -1,4 +1,4 @@
-# Terminal
+## Terminal
 
 快速导入路径：直接将待编辑文件或文件夹拖入终端中即可
 
@@ -45,3 +45,21 @@ Google chrome
 - 安装 git https://git-scm.com/download/mac
 - 安装 brew https://docs.brew.sh/Installation
 - brew 安装过程中会安装 Xcode
+
+## The default interactive shell is now zsh
+
+Mac更新之后使用终端提示：The default interactive shell is now zsh.
+vi ~/.bash_profile
+export BASH_SILENCE_DEPRECATION_WARNING=1
+https://www.jianshu.com/p/26d365078081
+
+## Homebrew 卡很久
+
+设置代理，或者在 update 的时候按一下 ctrl+c
+homebrew 每次安装都会先更新 homebrew，加个环境变量禁止就行了。export HOMEBREW_NO_AUTO_UPDATE=1
+
+## gyp: No Xcode or CLT version detected!
+
+Step1: 输入xcode-select --print-path查看 command-line tools 的安装路径，不出意外显示的结果应该是/Library/Developer/CommandLineTools
+Step2: 输入sudo rm -r -f /Library/Developer/CommandLineTools把 command-line tools 从系统移除掉
+Step3: 最后输入xcode-select --install重新安装
