@@ -22,6 +22,10 @@ ssh-keygen -t ed25519 -C "gateswapbot" -f gateswapbot
 
 使用 `cat id_rsa.pub` 命令查看公钥，并将公钥加到 `https://github.com/settings/keys` 
 
+## 提高github下载速度
+
+先使用 https://gitee.com/ 同步github项目，然后clone。
+
 ## 设置代理
 
 https://gist.github.com/chuyik/02d0d37a49edc162546441092efae6a1
@@ -336,6 +340,38 @@ pick df1f078 Merge PR ：fix failed to get block height via the keywrod block.nu
 ```
 
 编辑后保存退出，git 会自动压缩提交历史，如果有冲突，记得解决冲突后，使用 `git rebase --continue` 重新回到当前的 git 压缩过程。最后使用` git push -f`推送到远程仓库。
+
+## Multiple SSH Keys settings for different github account
+
+https://gist.github.com/jexchan/2351996
+
+```
+# ~/.ssh/config
+
+Host github.com-activehacker
+	HostName github.com
+	User git
+	IdentityFile ~/.ssh/id_rsa_activehacker
+
+Host github.com-jexchan
+	HostName github.com
+	User git
+	IdentityFile ~/.ssh/id_rsa_jexchan
+```
+
+```
+# .git/config
+[remote "origin"]
+        url = git@github.com-activehacker:activehacker/gfs.git
+```
+
+or
+
+```
+git clone git@github.com-activehacker:activehacker/gfs.git gfs_jexchan
+```
+
+
 
 ## 学习资料
 
