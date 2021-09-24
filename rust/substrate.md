@@ -178,8 +178,6 @@ decl_storage! {
         pub SomeDoubleMap: double_map hasher(blake2_128_concat) u32, hasher(blake2_128_concat) T::AccountId => u32;
     }
 }
-
-Copy
 ```
 
 Notice that the map's storage items specify [the hashing algorithm](https://substrate.dev/docs/zh-CN/knowledgebase/runtime/storage#hashing-algorithms) that will be used.

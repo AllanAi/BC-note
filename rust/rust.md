@@ -1,10 +1,120 @@
 https://doc.rust-lang.org/book/
 
-https://kaisery.github.io/trpl-zh-cn/ 【中文版】[附录 B：运算符与符号](https://kaisery.github.io/trpl-zh-cn/appendix-02-operators.html)
+https://rustwiki.org/zh-CN/book/ 【中文版】[附录 B：运算符与符号](https://kaisery.github.io/trpl-zh-cn/appendix-02-operators.html)
+
+视频：https://www.bilibili.com/video/BV1hp4y1k7SV
 
 运行 `cargo doc --open` 命令来构建所有本地依赖提供的文档，并在浏览器中打开。
 
+## 入门指南
+
+### Hello, World!
+
+```rust
+// main.rs
+fn main() {
+    println!("Hello, world!");
+}
+```
+
+```bash
+rustc main.rs
+./main
+```
+
+### Hello, Cargo!
+
+```shell
+cargo new hello_cargo
+cargo build
+./target/debug/hello_cargo
+cargo run # 同时编译并运行生成的可执行文件
+cargo check # 快速检查代码确保其可以编译，但并不产生可执行文件
+cargo build --release 
+```
+
+## 猜数字游戏
+
+```rust
+use rand::Rng;
+use std::cmp::Ordering;
+use std::io;
+
+fn main() {
+    println!("Guess the number!");
+
+    // let secret_number = rand::thread_rng().gen_range(1..101);
+    let secret_number = rand::thread_rng().gen_range(1..=100);
+
+    println!("The secret number is: {}", secret_number);
+
+    loop {
+        println!("Please input your guess.");
+
+        let mut guess =  String::new();
+
+        io::stdin().read_line(&mut guess).expect("Failed to read line");
+
+        // let guess: u32 = guess.trim().parse().expect("Please type a number!");
+        let guess: u32 = match guess.trim().parse() {
+            Ok(num) => num,
+            Err(_) => continue,
+        };
+
+        println!("You guessed: {}", guess);
+
+        match guess.cmp(&secret_number) {
+            Ordering::Less => println!("Too small!"),
+            Ordering::Greater => println!("Too big!"),
+            Ordering::Equal => {
+                println!("You win!");
+                break;
+            },
+        }
+    }
+}
+```
+
+
+
 ## 数据类型
+
+**变量和常量之间的差异**
+
+常量使用 `const` 关键字而不是 `let` 关键字来声明，并且值的类型**必须**标注。
+
+常量可以在任意作用域内声明，包括全局作用域。
+
+最后一个不同点是常量只能设置为常量表达式，而不能是函数调用的结果或是只能在运行时计算得到的值。
+
+```rust
+const MAX_POINTS: u32 = 100_000;
+```
+
+**标量类型**
+
+**标量**（*scalar*）类型表示单个值。Rust 有 4 个标量类型：整型、浮点型、布尔型和字符。
+
+**整数类型**
+
+| 长度       | 有符号类型 | 无符号类型 |
+| ---------- | ---------- | ---------- |
+| 8 位       | `i8`       | `u8`       |
+| 16 位      | `i16`      | `u16`      |
+| 32 位      | `i32`      | `u32`      |
+| 64 位      | `i64`      | `u64`      |
+| 128-位     | `i128`     | `u128`     |
+| 视架构而定 | `isize`    | `usize`    |
+
+注意，除了字节字面量之外的所有的数字字面量都允许使用类型后缀，例如 `57u8`，还有可以使用 `_` 作为可视分隔符，如 `1_000`。
+
+| 数字字面量         | 示例          |
+| ------------------ | ------------- |
+| 十进制             | `98_222`      |
+| 十六进制           | `0xff`        |
+| 八进制             | `0o77`        |
+| 二进制             | `0b1111_0000` |
+| 字节 (仅限于 `u8`) | `b'A'`        |
 
 **整型溢出**
 
@@ -12,18 +122,37 @@ https://kaisery.github.io/trpl-zh-cn/ 【中文版】[附录 B：运算符与符
 
 在 release 构建中，Rust 不检测溢出，相反会进行一种被称为二进制补码包装（*two’s complement wrapping*）的操作。简而言之，`256` 变成 `0`，`257` 变成 `1`，依此类推。依赖整型溢出被认为是一种错误，即便可能出现这种行为。如果你确实需要这种行为，标准库中有一个类型显式提供此功能，[`Wrapping`](https://kaisery.github.io/std/num/struct.Wrapping.html)。
 
+要显式处理溢出的可能性，可以使用标准库针对原始数字类型提供的以下的一系列方法：
+
+- 使用 `wrapping_*` 方法在所有模式下进行包裹，例如 `wrapping_add`
+- 如果使用 `checked_*` 方法时发生溢出，则返回 `None` 值
+- 使用 `overflowing_*` 方法返回该值和一个指示是否存在溢出的布尔值
+- 使用 `saturating_*` 方法使值达到最小值或最大值
+
+**浮点类型**
+
+**浮点类型数字** 是带有小数点的数字，在 Rust 中浮点类型数字也有两种基本类型： `f32` 和 `f64`，分别为 32 位和 64 位大小。默认浮点类型是 `f64`，因为在现代的 CPU 中它的速度与 `f32` 几乎相同，但精度更高。
+
 **字符类型**
 
 Rust 的 `char` 类型的大小为四个字节(four bytes)，并代表了一个 Unicode 标量值（Unicode Scalar Value），这意味着它可以比 ASCII 表示更多内容。在 Rust 中，拼音字母（Accented letters），中文、日文、韩文等字符，emoji（绘文字）以及零长度的空白字符都是有效的 `char` 值。Unicode 标量值包含从 `U+0000` 到 `U+D7FF` 和 `U+E000` 到 `U+10FFFF` 在内的值。不过，“字符” 并不是一个 Unicode 中的概念，所以人直觉上的 “字符” 可能与 Rust 中的 `char` 并不符合。第八章的 [“使用字符串存储 UTF-8 编码的文本”](https://kaisery.github.io/trpl-zh-cn/ch08-02-strings.html#storing-utf-8-encoded-text-with-strings) 中将详细讨论这个主题。
 
+**复合类型**
+
+**复合类型**（*compound type*）可以将其他类型的多个值合在一块组成一个类型。Rust 有两种基本的复合类型：元组（tuple）和数组（array）。
+
 **元组类型**
+
+元组是将多种类型的多个值组合到一个复合类型中的一种基本方式。元组的长度是固定的：声明后，它们就无法增长或缩小。
+
+我们通过在括号内写入以逗号分隔的值列表来创建一个元组。元组中的每个位置都有一个类型，并且元组中不同值的类型不要求是相同的。
 
 ```rust
 let tup: (i32, f64, u8) = (500, 6.4, 1);
 let (x, y, z) = tup;
-let five_hundred = x.0;
-let six_point_four = x.1;
-let one = x.2;
+let five_hundred = tup.0;
+let six_point_four = tup.1;
+let one = tup.2;
 ```
 
 **数组类型**
@@ -42,7 +171,13 @@ let a = [3; 5]; // [3, 3, 3, 3, 3]
 
 编译并没有产生任何错误，不过程序会出现一个 运行时（runtime）错误并且不会成功退出。当尝试用索引访问一个元素时，Rust 会检查指定的索引是否小于数组的长度。
 
+## 函数
+
 **包含语句和表达式的函数体**
+
+语句不返回值。因此，不能把 `let` 语句赋值给另一个变量。
+
+这与其他语言不同，例如 C 和 Ruby，它们的赋值语句会返回所赋的值。在这些语言中，可以这么写 `x = y = 6`，这样 `x` 和 `y` 的值都是 `6`；Rust 中不能这样写。
 
 ```rust
 fn main() {
@@ -57,9 +192,40 @@ fn main() {
 
 **具有返回值的函数**
 
-在 Rust 中，函数的返回值等同于函数体最后一个表达式的值。使用 `return` 关键字和指定值，可从函数中提前返回；但大部分函数隐式的返回最后的表达式。
+我们并不对返回值命名，但要在箭头（`->`）后声明它的类型。在 Rust 中，函数的返回值等同于函数体最后一个表达式的值。使用 `return` 关键字和指定值，可从函数中提前返回；但大部分函数隐式的返回最后的表达式。
+
+```rust
+fn main() {
+    let x = plus_one(5);
+
+    println!("The value of x is: {}", x);
+}
+
+fn plus_one(x: i32) -> i32 {
+    x + 1
+}
+```
+
+## 控制流
+
+**在 let 语句中使用 if**
+
+```rust
+fn main() {
+    let condition = true;
+    let number = if condition {
+        5
+    } else {
+        6
+    };
+
+    println!("The value of number is: {}", number);
+}
+```
 
 **使用循环重复执行**
+
+Rust 有三种循环：`loop`、`while` 和 `for`。
 
 ```rust
 fn main() {
@@ -75,6 +241,9 @@ fn main() {
     let a = [10, 20, 30, 40, 50];
     for element in a.iter() {
         println!("the value is: {}", element);
+    }
+    for number in (1..4).rev() {
+        println!("{}!", number);
     }
 }
 ```
@@ -93,7 +262,7 @@ fn main() {
 
 当你的代码调用一个函数时，传递给函数的值（包括可能指向堆上数据的指针）和函数的局部变量被压入栈中。当函数结束时，这些值被移出栈。
 
-跟踪哪部分代码正在使用堆上的哪些数据，最大限度的减少堆上的重复数据的数量，以及清理堆上不再使用的数据确保不会耗尽空间，这些问题正是所有权系统要处理的。
+跟踪哪部分代码正在使用堆上的哪些数据，最大限度的减少堆上的重复数据的数量，以及清理堆上不再使用的数据确保不会耗尽空间，这些问题正是所有权系统要处理的。一旦理解了所有权，你就不需要经常考虑栈和堆了，不过明白了所有权的存在就是为了管理堆数据，能够帮助解释为什么所有权要以这种方式工作。
 
 **所有权规则**
 
@@ -101,9 +270,37 @@ fn main() {
 2. 值在任一时刻有且只有一个所有者。
 3. 当所有者（变量）离开作用域，这个值将被丢弃。
 
+**String 类型**
+
+前面介绍的类型都是存储在栈上的并且当离开作用域时被移出栈，不过我们需要寻找一个存储在堆上的数据来探索 Rust 是如何知道该在何时清理数据的。
+
+Rust 有第二个字符串类型，`String`。这个类型被分配到堆上，所以能够存储在编译时未知大小的文本。
+
+```rust
+let mut s = String::from("hello");
+s.push_str(", world!"); // push_str() 在字符串后追加字面值
+println!("{}", s); // 将打印 `hello, world!`
+```
+
 **内存与分配**
 
+对于 `String` 类型，为了支持一个可变，可增长的文本片段，需要在堆上分配一块在编译时未知大小的内存来存放内容。这意味着：
+
+- 必须在运行时向操作系统请求内存。
+- 需要一个当我们处理完 `String` 时将内存返回给操作系统的方法。
+
 Rust 采取了一个不同的策略：内存在拥有它的变量离开作用域后就被自动释放。
+
+```rust
+{
+    let s = String::from("hello"); // 从此处起，s 是有效的
+
+    // 使用 s
+}                                  // 此作用域已结束，
+                                   // s 不再有效
+```
+
+当变量离开作用域，Rust 为我们调用一个特殊的函数—— `drop`。
 
 **变量与数据交互的方式（一）：移动**
 
@@ -119,19 +316,23 @@ let s1 = String::from("hello");
 let s2 = s1;
 ```
 
+这看起来与上面的代码非常类似，所以我们可能会假设他们的运行方式也是类似的：也就是说，第二行可能会生成一个 `s1` 的拷贝并绑定到 `s2` 上。不过，事实上并不完全是这样。
+
 `String` 由三部分组成，如图左侧所示：一个指向存放字符串内容内存的指针，一个长度，和一个容量。这一组数据存储在栈上。右侧则是堆上存放内容的内存部分。
 
-![String in memory](https://kaisery.github.io/trpl-zh-cn/img/trpl04-01.svg)
+![String in memory](rust/trpl04-01.svg)
 
 当我们将 `s1` 赋值给 `s2`，`String` 的数据被复制了，这意味着我们从栈上拷贝了它的指针、长度和容量。我们并没有复制指针指向的堆上数据。
 
-![s1 and s2 pointing to the same value](https://kaisery.github.io/trpl-zh-cn/img/trpl04-02.svg)
+![s1 and s2 pointing to the same value](rust/trpl04-02.svg)
 
 之前我们提到过当变量离开作用域后，Rust 自动调用 `drop` 函数并清理变量的堆内存。s1, s2两个数据指针指向了同一位置。这就有了一个问题：当 `s2` 和 `s1` 离开作用域，他们都会尝试释放相同的内存。这是一个叫做 **二次释放**（*double free*）的错误，也是之前提到过的内存安全性 bug 之一。两次释放（相同）内存会导致内存污染，它可能会导致潜在的安全漏洞。
 
 为了确保内存安全，这种场景下 Rust 的处理有另一个细节值得注意。与其尝试拷贝被分配的内存，Rust 则认为 `s1` 不再有效，因此 Rust 不需要在 `s1` 离开作用域后清理任何东西。
 
 如果你在其他语言中听说过术语 **浅拷贝**（*shallow copy*）和 **深拷贝**（*deep copy*），那么拷贝指针、长度和容量而不拷贝数据可能听起来像浅拷贝。不过因为 Rust 同时使第一个变量无效了，这个操作被称为 **移动**（*move*），而不是浅拷贝。上面的例子可以解读为 `s1` 被 **移动** 到了 `s2` 中。
+
+![s1 moved to s2](rust/trpl04-04.svg)
 
 **变量与数据交互的方式（二）：克隆**
 
@@ -142,6 +343,29 @@ let s1 = String::from("hello");
 let s2 = s1.clone();
 println!("s1 = {}, s2 = {}", s1, s2);
 ```
+
+**只在栈上的数据：拷贝**
+
+```rust
+let x = 5;
+let y = x;
+
+println!("x = {}, y = {}", x, y);
+```
+
+但这段代码似乎与我们刚刚学到的内容相矛盾：没有调用 `clone`，不过 `x` 依然有效且没有被移动到 `y` 中。
+
+原因是像整型这样的在编译时已知大小的类型被整个存储在栈上，所以拷贝其实际的值是快速的。这意味着没有理由在创建变量 `y` 后使 `x` 无效。换句话说，这里没有深浅拷贝的区别，所以这里调用 `clone` 并不会与通常的浅拷贝有什么不同，我们可以不用管它。
+
+Rust 有一个叫做 `Copy` trait 的特殊注解，可以用在类似整型这样的存储在栈上的类型上（第十章详细讲解 trait）。如果一个类型拥有 `Copy` trait，一个旧的变量在将其赋值给其他变量后仍然可用。Rust 不允许自身或其任何部分实现了 `Drop` trait 的类型使用 `Copy` trait。如果我们对其值离开作用域时需要特殊处理的类型使用 `Copy` 注解，将会出现一个编译时错误。要学习如何为你的类型增加 `Copy` 注解，请阅读附录 C 中的 [“可派生的 trait”](https://rustwiki.org/zh-CN/book/appendix-03-derivable-traits.html)。
+
+那么什么类型是 `Copy` 的呢？可以查看给定类型的文档来确认，不过作为一个通用的规则，任何简单标量值的组合可以是 `Copy` 的，不需要分配内存或某种形式资源的类型是 `Copy` 的。如下是一些 `Copy` 的类型：
+
+- 所有整数类型，比如 `u32`。
+- 布尔类型，`bool`，它的值是 `true` 和 `false`。
+- 所有浮点数类型，比如 `f64`。
+- 字符类型，`char`。
+- 元组，当且仅当其包含的类型也都是 `Copy` 的时候。比如，`(i32, i32)` 是 `Copy` 的，但 `(i32, String)` 就不是。
 
 **所有权与函数**
 
@@ -170,6 +394,8 @@ fn makes_copy(some_integer: i32) { // some_integer 进入作用域
 
 **返回值与作用域**
 
+返回值也可以转移所有权。
+
 ```rust
 fn main() {
     let s1 = gives_ownership();         // gives_ownership 将返回值
@@ -195,6 +421,28 @@ fn takes_and_gives_back(a_string: String) -> String { // a_string 进入作用�
 
 变量的所有权总是遵循相同的模式：将值赋给另一个变量时移动它。当持有堆中数据值的变量离开作用域时，其值将通过 `drop` 被清理掉，除非数据被移动为另一个变量所有。
 
+在每一个函数中都获取所有权并接着返回所有权有些啰嗦。如果我们想要函数使用一个值但不获取所有权该怎么办呢？如果我们还要接着使用它的话，每次都传进去再返回来就有点烦人了，除此之外，我们也可能想返回函数体中产生的一些数据。
+
+我们可以使用元组来返回多个值：
+
+```rust
+fn main() {
+    let s1 = String::from("hello");
+
+    let (s2, len) = calculate_length(s1);
+
+    println!("The length of '{}' is {}.", s2, len);
+}
+
+fn calculate_length(s: String) -> (String, usize) {
+    let length = s.len(); // len() 返回字符串的长度
+
+    (s, length)
+}
+```
+
+但是这未免有些形式主义，而且这种场景应该很常见。幸运的是，Rust 对此提供了一个功能，叫做 **引用**（*references*）。
+
 **引用与借用**
 
 ```rust
@@ -217,6 +465,24 @@ fn calculate_length(s: &String) -> usize {// s 是对 String 的引用
 注意：与使用 `&` 引用相反的操作是 **解引用**（*dereferencing*），它使用解引用运算符，`*`。
 
 将获取引用作为函数参数称为 **借用**（*borrowing*）。
+
+如果我们尝试修改借用的变量呢？
+
+```rust
+fn main() {
+    let s = String::from("hello");
+
+    change(&s);
+}
+
+fn change(some_string: &String) {
+    some_string.push_str(", world");
+}
+```
+
+```
+error[E0596]: cannot borrow immutable borrowed content `*some_string` as mutable
+```
 
 正如变量默认是不可变的，引用也一样。（默认）不允许修改引用的值。
 
@@ -255,7 +521,7 @@ println!("{}, {}, and {}", r1, r2, r3);
 
 我们 **也** 不能在拥有不可变引用的同时拥有可变引用。
 
-注意一个引用的作用域从声明的地方开始一直持续到最后一次使用为止。例如，因为最后一次使用不可变引用在声明可变引用之前，所以如下代码是可以编译的：
+**注意一个引用的作用域从声明的地方开始一直持续到最后一次使用为止。**例如，因为最后一次使用不可变引用在声明可变引用之前，所以如下代码是可以编译的：
 
 ```rust
 let mut s = String::from("hello");
@@ -278,14 +544,26 @@ fn main() {
     let reference_to_nothing = dangle();
 }
 
-fn dangle() -> &String {
-    let s = String::from("hello");
+fn dangle() -> &String { // dangle 返回一个字符串的引用
 
-    &s
-}
+    let s = String::from("hello"); // s 是一个新字符串
+
+    &s // 返回字符串 s 的引用
+} // 这里 s 离开作用域并被丢弃。其内存被释放。
+  // 危险！
 ```
 
 因为 `s` 是在 `dangle` 函数内创建的，当 `dangle` 的代码执行完毕后，`s` 将被释放。不过我们尝试返回它的引用。这意味着这个引用会指向一个无效的 `String`，这可不对！Rust 不会允许我们这么做。
+
+```rust
+fn no_dangle() -> String {
+    let s = String::from("hello");
+
+    s
+}
+```
+
+这样就没有任何错误了。所有权被移动出去，所以没有值被释放。
 
 **引用的规则**
 
@@ -295,6 +573,37 @@ fn dangle() -> &String {
 ## Slice 类型
 
 另一个没有所有权的数据类型是 *slice*。slice 允许你引用集合中一段连续的元素序列，而不用引用整个集合。
+
+这里有一个编程小习题：编写一个函数，该函数接收一个字符串，并返回在该字符串中找到的第一个单词。如果函数在该字符串中并未找到空格，则整个字符串就是一个单词，所以应该返回整个字符串。
+
+```rust
+fn first_word(s: &String) -> usize {
+    let bytes = s.as_bytes();
+
+    for (i, &item) in bytes.iter().enumerate() {
+        if item == b' ' {
+            return i;
+        }
+    }
+
+    s.len()
+}
+
+fn main() {
+    let mut s = String::from("hello world");
+
+    let word = first_word(&s); // word 的值为 5
+
+    s.clear(); // 这清空了字符串，使其等于 ""
+
+    // word 在此处的值仍然是 5，
+    // 但是没有更多的字符串让我们可以有效地应用数值 5。word 的值现在完全无效！
+}
+```
+
+我们不得不时刻担心 `word` 的索引与 `s` 中的数据不再同步，这很啰嗦且易出错！
+
+幸运的是，Rust 为这个问题提供了一个解决方法：字符串 slice。
 
 **字符串 slice**
 
@@ -356,6 +665,32 @@ let s = "Hello, world!";
 ```
 
 这里 `s` 的类型是 `&str`：这也就是为什么字符串字面值是不可变的；`&str` 是一个不可变引用。
+
+**字符串 slice 作为参数**
+
+```rust
+fn first_word(s: &str) -> &str {
+```
+
+如果有一个字符串 slice，可以直接传递它。如果有一个 `String`，则可以传递整个 `String` 的 slice。定义一个获取字符串 slice 而不是 `String` 引用的函数使得我们的 API 更加通用并且不会丢失任何功能：
+
+```rust
+fn main() {
+    let my_string = String::from("hello world");
+
+    // first_word 中传入 `String` 的 slice
+    let word = first_word(&my_string[..]);
+
+    let my_string_literal = "hello world";
+
+    // first_word 中传入字符串字面值的 slice
+    let word = first_word(&my_string_literal[..]);
+
+    // 因为字符串字面值 **就是** 字符串 slice，
+    // 这样写也可以，即不使用 slice 语法！
+    let word = first_word(my_string_literal);
+}
+```
 
 **其他类型的 slice**
 
@@ -432,6 +767,36 @@ let origin = Point(0, 0, 0);
 ```
 
 在其他方面，元组结构体实例类似于元组：可以将其解构为单独的部分，也可以使用 `.` 后跟索引来访问单独的值，等等。
+
+**结构体数据的所有权**
+
+在示例 5-1 中的 `User` 结构体的定义中，我们使用了自身拥有所有权的 `String` 类型而不是 `&str` 字符串 slice 类型。这是一个有意而为之的选择，因为我们想要这个结构体拥有它所有的数据，为此只要整个结构体是有效的话其数据也是有效的。
+
+可以使结构体存储被其他对象拥有的数据的引用，不过这么做的话需要用上 **生命周期**（*lifetimes*）。生命周期确保结构体引用的数据有效性跟结构体本身保持一致。如果你尝试在结构体中存储一个引用而不指定生命周期将是无效的，比如这样：
+
+```rust
+struct User {
+    username: &str,
+    email: &str,
+    sign_in_count: u64,
+    active: bool,
+}
+
+fn main() {
+    let user1 = User {
+        email: "someone@example.com",
+        username: "someusername123",
+        active: true,
+        sign_in_count: 1,
+    };
+}
+```
+
+编译器会抱怨它需要生命周期标识符：
+
+```text
+error[E0106]: missing lifetime specifier
+```
 
 **通过派生 trait 增加实用功能**
 
@@ -560,7 +925,7 @@ p1.distance(&p2);
 
 **关联函数**
 
-`impl` 块的另一个有用的功能是：允许在 `impl` 块中定义 **不** 以 `self` 作为参数的函数。这被称为 **关联函数**（*associated functions*），因为它们与结构体相关联。它们仍是函数而不是方法，因为它们并不作用于一个结构体的实例。你已经使用过 `String::from` 关联函数了。
+`impl` 块的另一个有用的功能是：允许在 `impl` 块中定义 **不** 以 `self` 作为参数的函数。这被称为 **关联函数**（*associated functions*）【注：类似Java里的类函数】，因为它们与结构体相关联。它们仍是函数而不是方法，因为它们并不作用于一个结构体的实例。你已经使用过 `String::from` 关联函数了。
 
 ```rust
 impl Rectangle {
@@ -646,6 +1011,23 @@ enum IpAddr {
 这些代码展示了可以将任意类型的数据放入枚举成员中：例如字符串、数字类型或者结构体。甚至可以包含另一个枚举！另外，标准库中的类型通常并不比你设想出来的要复杂多少。
 
 结构体和枚举还有另一个相似点：就像可以使用 `impl` 来为结构体定义方法那样，也可以在枚举上定义方法。
+
+```rust
+enum Message {
+    Quit,
+    Move { x: i32, y: i32 },
+    Write(String),
+    ChangeColor(i32, i32, i32),
+}
+impl Message {
+    fn call(&self) {
+        // 在这里定义方法体
+    }
+}
+
+let m = Message::Write(String::from("hello"));
+m.call();
+```
 
 **Option 枚举和其相对于空值的优势**
 
@@ -830,9 +1212,16 @@ if let Coin::Quarter(state) = coin {
 
 ## 模块
 
+Rust 有许多功能可以让你管理代码的组织，包括哪些内容可以被公开，哪些内容作为私有部分，以及程序每个作用域中的名字。这些功能。这有时被称为 “模块系统（the module system）”，包括：
+
+- **包**（*Packages*）： Cargo 的一个功能，它允许你构建、测试和分享 crate。
+- **Crates** ：一个模块的树形结构，它形成了库或二进制项目。
+- **模块**（*Modules*）和 **use**： 允许你控制作用域和路径的私有性。
+- **路径**（*path*）：一个命名例如结构体、函数或模块等项的方式
+
 **包和 crate**
 
-*包*（*package*） 是提供一系列功能的一个或者多个 crate。一个包会包含有一个 *Cargo.toml* 文件，阐述如何去构建这些 crate。
+crate 是一个二进制项或者库。*crate root* 是一个源文件，Rust 编译器以它为起始点，并构成你的 crate 的根模块。*包*（*package*） 是提供一系列功能的一个或者多个 crate。一个包会包含有一个 *Cargo.toml* 文件，阐述如何去构建这些 crate。
 
 包中所包含的内容由几条规则来确立。一个包中至多 **只能** 包含一个库 crate(library crate)；包中可以包含任意多个二进制 crate(binary crate)；包中至少包含一个 crate，无论是库的还是二进制的。
 
@@ -853,6 +1242,10 @@ main.rs
 在此，我们有了一个只包含 *src/main.rs* 的包，意味着它只含有一个名为 `my-project` 的二进制 crate。如果一个包同时含有 *src/main.rs* 和 *src/lib.rs*，则它有两个 crate：一个库和一个二进制项，且名字都与包相同。通过将文件放在 *src/bin* 目录下，一个包可以拥有多个二进制 crate：每个 *src/bin* 下的文件都会被编译成一个独立的二进制 crate。
 
 **定义模块来控制作用域与私有性**
+
+在本节，我们将讨论模块和其它一些关于模块系统的部分，如允许你命名项的 *路径*（*paths*）；用来将路径引入作用域的 `use` 关键字；以及使项变为公有的 `pub` 关键字。我们还将讨论 `as` 关键字、外部包和 glob 运算符。现在，让我们把注意力放在模块上！
+
+*模块* 让我们可以将一个 crate 中的代码进行分组，以提高可读性与重用性。模块还可以控制项的 *私有性*，即项是可以被外部代码使用的（*public*），还是作为一个内部实现的内容，不能被外部代码使用（*private*）。
 
 通过执行 `cargo new --lib restaurant`，来创建一个新的名为 `restaurant` 的库。然后将示例 7-1 中所罗列出来的代码放入 *src/lib.rs* 中，来定义一些模块和函数。
 
@@ -899,6 +1292,8 @@ crate
 - **绝对路径**（*absolute path*）从 crate 根开始，以 crate 名或者字面值 `crate` 开头。
 - **相对路径**（*relative path*）从当前模块开始，以 `self`、`super` 或当前模块的标识符开头。
 
+绝对路径和相对路径都后跟一个或多个由双冒号（`::`）分割的标识符。
+
 Rust 中默认所有项（函数、方法、结构体、枚举、模块和常量）都是私有的。父模块中的项不能使用子模块中的私有项，但是子模块中的项可以使用他们父模块中的项。这是因为子模块封装并隐藏了他们的实现详情，但是子模块可以看到他们定义的上下文。
 
 **使用 pub 关键字暴露路径**
@@ -938,7 +1333,7 @@ mod back_of_house {
 
 **创建公有的结构体和枚举**
 
-如果我们在一个结构体定义的前面使用了 `pub` ，这个结构体会变成公有的，但是这个结构体的字段仍然是私有的。
+**如果我们在一个结构体定义的前面使用了 `pub` ，这个结构体会变成公有的，但是这个结构体的字段仍然是私有的。**
 
 ```rust
 mod back_of_house {
@@ -972,7 +1367,7 @@ pub fn eat_at_restaurant() {
 
 还请注意一点，因为 `back_of_house::Breakfast` 具有私有字段，所以这个结构体需要提供一个公共的关联函数来构造 `Breakfast` 的实例(这里我们命名为 `summer`)。如果 `Breakfast` 没有这样的函数，我们将无法在 `eat_at_restaurant` 中创建 `Breakfast` 实例，因为我们不能在 `eat_at_restaurant` 中设置私有字段 `seasonal_fruit` 的值。
 
-与之相反，如果我们将枚举设为公有，则它的所有成员都将变为公有。
+**与之相反，如果我们将枚举设为公有，则它的所有成员都将变为公有。**
 
 ```rust
 mod back_of_house {
@@ -1020,9 +1415,35 @@ fn main() {
 }
 ```
 
+```rust
+use std::fmt;
+use std::io;
+
+fn function1() -> fmt::Result {
+    // --snip--
+}
+
+fn function2() -> io::Result<()> {
+    // --snip--
+}
+```
+
 **使用 as 关键字提供新的名称**
 
 使用 `use` 将两个同名类型引入同一作用域这个问题还有另一个解决办法：在这个类型的路径后面，我们使用 `as` 指定一个新的本地名称或者别名。
+
+```rust
+use std::fmt::Result;
+use std::io::Result as IoResult;
+
+fn function1() -> Result {
+    // --snip--
+}
+
+fn function2() -> IoResult<()> {
+    // --snip--
+}
+```
 
 **使用 pub use 重导出名称**
 
@@ -1095,7 +1516,7 @@ pub mod hosting {
 
 示例 7-22: 在 *src/front_of_house.rs* 中定义 `front_of_house` 模块
 
-在 `mod front_of_house` 后使用分号，而不是代码块，这将告诉 Rust 在另一个与模块同名的文件中加载模块的内容。继续重构我们例子，将 `hosting` 模块也提取到其自己的文件中，仅对 *src/front_of_house.rs* 包含 `hosting` 模块的声明进行修改：
+在 `mod front_of_house` 后使用分号，而不是代码块，**这将告诉 Rust 在另一个与模块同名的文件中加载模块的内容**。继续重构我们例子，将 `hosting` 模块也提取到其自己的文件中，仅对 *src/front_of_house.rs* 包含 `hosting` 模块的声明进行修改：
 
 文件名: src/front_of_house.rs
 
@@ -1110,6 +1531,8 @@ pub mod hosting;
 ```rust
 pub fn add_to_waitlist() {}
 ```
+
+模块树依然保持相同，`eat_at_restaurant` 中的函数调用也无需修改继续保持有效，即便其定义存在于不同的文件中。这个技巧让你可以在模块代码增长时，将它们移动到新文件中。
 
 ## 集合
 
@@ -1194,7 +1617,7 @@ for i in &mut v {
 }
 ```
 
-为了修改可变引用所指向的值，在使用 `+=` 运算符之前必须使用解引用运算符（`*`）获取 `i` 中的值。
+为了修改可变引用所指向的值，在使用 `+=` 运算符之前必须使用解引用运算符（`*`）获取 `i` 中的值。第十五章的 [“通过解引用运算符追踪指针的值”](https://rustwiki.org/zh-CN/book/ch15-02-deref.html#following-the-pointer-to-the-value-with-the-dereference-operator) 部分会详细介绍解引用运算符。
 
 **使用枚举来储存多种类型**
 
@@ -1283,7 +1706,7 @@ let s1 = String::from("hello");
 let h = s1[0]; // error[E0277]: the trait bound `std::string::String: std::ops::Index<{integer}>` is not satisfied
 ```
 
-错误和提示说明了全部问题：Rust 的字符串不支持索引。
+错误和提示说明了全部问题：**Rust 的字符串不支持索引**。
 
 **内部表现**
 
@@ -1388,6 +1811,8 @@ let initial_scores = vec![10, 50];
 
 let scores: HashMap<_, _> = teams.iter().zip(initial_scores.iter()).collect();
 ```
+
+这里 `HashMap<_, _>` 类型注解是必要的，因为可能 `collect` 很多不同的数据结构，而除非显式指定否则 Rust 无从得知你需要的类型。但是对于键和值的类型参数来说，可以使用下划线占位，而 Rust 能够根据 vector 中数据的类型推断出 `HashMap` 所包含的类型。
 
 **哈希 map 和所有权**
 
@@ -1742,6 +2167,8 @@ impl Guess {
 fn largest<T>(list: &[T]) -> T {
 ```
 
+可以这样理解这个定义：函数 `largest` 有泛型类型 `T`。它有个参数 `list`，其类型是元素为 `T` 的 slice。`largest` 函数的返回值类型也是 `T`。
+
 **结构体定义中的泛型**
 
 ```rust
@@ -1826,6 +2253,8 @@ let float = Some(5.0);
 我们可以使用泛型来编写不重复的代码，而 Rust 将会为每一个实例编译其特定类型的代码。这意味着在使用泛型时没有运行时开销；当代码运行，它的执行效率就跟好像手写每个具体定义的重复代码一样。这个单态化过程正是 Rust 泛型在运行时极其高效的原因。
 
 ### trait
+
+> 注意：*trait* 类似于其他语言中的常被称为 **接口**（*interfaces*）的功能，虽然有一些不同。
 
 **trait：定义共享的行为**
 
@@ -2105,7 +2534,7 @@ signature does not say whether it is borrowed from `x` or `y`
 
 **函数签名中的生命周期注解**
 
-就像泛型类型参数，泛型生命周期参数需要声明在函数名和参数列表间的尖括号中。这里我们想要告诉 Rust 关于参数中的引用和返回值之间的限制是他们都必须拥有相同的生命周期，就像示例 10-22 中在每个引用中都加上了 `'a` 那样：
+**就像泛型类型参数，泛型生命周期参数需要声明在函数名和参数列表间的尖括号中**。这里我们想要告诉 Rust 关于参数中的引用和返回值之间的限制是他们都必须拥有相同的生命周期，就像示例 10-22 中在每个引用中都加上了 `'a` 那样：
 
 文件名: src/main.rs
 
@@ -2119,9 +2548,9 @@ fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
 }
 ```
 
-记住通过在函数签名中指定生命周期参数时，我们并没有改变任何传入值或返回值的生命周期，而是指出任何不满足这个约束条件的值都将被借用检查器拒绝。注意 `longest` 函数并不需要知道 `x` 和 `y` 具体会存在多久，而只需要知道有某个可以被 `'a` 替代的作用域将会满足这个签名。
+**记住通过在函数签名中指定生命周期参数时，我们并没有改变任何传入值或返回值的生命周期，而是指出任何不满足这个约束条件的值都将被借用检查器拒绝。**注意 `longest` 函数并不需要知道 `x` 和 `y` 具体会存在多久，而只需要知道有某个可以被 `'a` 替代的作用域将会满足这个签名。
 
-当在函数中使用生命周期注解时，这些注解出现在函数签名中，而不存在于函数体中的任何代码中。
+**当在函数中使用生命周期注解时，这些注解出现在函数签名中，而不存在于函数体中的任何代码中。**
 
 当具体的引用被传递给 `longest` 时，被 `'a` 所替代的具体生命周期是 `x` 的作用域与 `y` 的作用域相重叠的那一部分。换一种说法就是泛型生命周期 `'a` 的具体生命周期等同于 `x` 和 `y` 的生命周期中较小的那一个。因为我们用相同的生命周期参数 `'a` 标注了返回的引用值，所以返回的引用值就能保证在 `x` 和 `y` 中较短的那个生命周期结束之前保持有效。
 
@@ -2568,6 +2997,8 @@ Rust 社区倾向于根据测试的两个主要分类来考虑问题：**单元�
 
 **集成测试**
 
+与之对应的集成测试因为位于另一个文件夹，所以它们并不需要 `#[cfg(test)]` 注解。
+
 在 Rust 中，集成测试对于你需要测试的库来说完全是外部的。同其他使用库的代码一样使用库文件，也就是说它们只能调用一部分库中的公有 API 。集成测试的目的是测试库的多个部分能否一起正常工作。一些单独能正确运行的代码单元集成在一起也可能会出现问题，所以集成测试的覆盖率也是很重要的。为了创建集成测试，你需要先创建一个 *tests* 目录。
 
 为了编写集成测试，需要在项目根目录创建一个 *tests* 目录，与 *src* 同级。Cargo 知道如何去寻找这个目录中的集成测试文件。接着可以随意在这个目录中创建任意多的测试文件，Cargo 会将每一个文件当作单独的 crate 来编译。
@@ -2591,11 +3022,44 @@ $ cargo test --test integration_test
 
 *tests* 目录中的子目录不会被作为单独的 crate 编译或作为一个测试结果部分出现在测试输出中。
 
+**集成测试中的子模块**
+
+创建 *tests/common/mod.rs* ，而不是创建 *tests/common.rs* 。这是一种 Rust 的命名规范，这样命名告诉 Rust 不要将 `common` 看作一个集成测试文件。
+
+```rust
+use adder;
+
+mod common;
+
+#[test]
+fn it_adds_two() {
+    common::setup();
+    assert_eq!(4, adder::add_two(2));
+}
+```
+
 **二进制 crate 的集成测试**
 
 如果项目是二进制 crate 并且只包含 *src/main.rs* 而没有 *src/lib.rs*，这样就不可能在 *tests* 目录创建集成测试并使用 `extern crate` 导入 *src/main.rs* 中定义的函数。只有库 crate 才会向其他 crate 暴露了可供调用和使用的函数；二进制 crate 只意在单独运行。
 
 为什么 Rust 二进制项目的结构明确采用 *src/main.rs* 调用 *src/lib.rs* 中的逻辑的方式？因为通过这种结构，集成测试 **就可以** 通过 `extern crate` 测试库 crate 中的主要功能了，而如果这些重要的功能没有问题的话，*src/main.rs* 中的少量代码也就会正常工作且不需要测试。
+
+**重构改进模块性和错误处理**
+
+`main` 函数负责多个任务的组织问题在许多二进制项目中很常见。所以 Rust 社区开发出一类在 `main` 函数开始变得庞大时进行二进制程序的关注分离的指导性过程。这些过程有如下步骤：
+
+- 将程序拆分成 *main.rs* 和 *lib.rs* 并将程序的逻辑放入 *lib.rs* 中。
+- 当命令行解析逻辑比较小时，可以保留在 *main.rs* 中。
+- 当命令行解析开始变得复杂时，也同样将其从 *main.rs* 提取到 *lib.rs* 中。
+
+经过这些过程之后保留在 `main` 函数中的责任应该被限制为：
+
+- 使用参数值调用命令行解析逻辑
+- 设置任何其他的配置
+- 调用 *lib.rs* 中的 `run` 函数
+- 如果 `run` 返回错误，则处理这个错误
+
+这个模式的一切就是为了关注分离：*main.rs* 处理程序运行，而 *lib.rs* 处理所有的真正的任务逻辑。因为不能直接测试 `main` 函数，这个结构通过将所有的程序逻辑移动到 *lib.rs* 的函数中使得我们可以测试他们。仅仅保留在 *main.rs* 中的代码将足够小以便阅读就可以验证其正确性。让我们遵循这些步骤来重构程序。
 
 **测试驱动开发**
 
@@ -2609,6 +3073,8 @@ $ cargo test --test integration_test
 **将错误打印到标准错误**
 
 标准库提供了 `eprintln!` 宏来打印到标准错误流
+
+
 
 ## 闭包
 
@@ -2880,6 +3346,8 @@ fn shoes_in_my_size(shoes: Vec<Shoe>, shoe_size: u32) -> Vec<Shoe> {
 }
 ```
 
+`shoes_in_my_size` 函数体中调用了 `into_iter` 来创建一个获取 vector 所有权的迭代器。接着调用 `filter` 将这个迭代器适配成一个只含有那些闭包返回 `true` 的元素的新迭代器。
+
 **实现 Iterator trait 来创建自定义迭代器**
 
 ```rust
@@ -3104,7 +3572,7 @@ Cargo 的设计使得开发者可以通过新的子命令来对 Cargo 进行扩�
 
 ## 智能指针
 
-**智能指针**（*smart pointers*）是一类数据结构，他们的表现类似指针，但是也拥有额外的元数据和功能。智能指针提供了多于引用的额外功能。本章将会探索的一个例子便是 **引用计数** （*reference counting*）智能指针类型，其允许数据有多个所有者。引用计数智能指针记录总共有多少个所有者，并当没有任何所有者时负责清理数据。
+**智能指针**（*smart pointers*）是一类数据结构，他们的表现类似指针，但是也拥有额外的元数据和功能。Rust 标准库中不同的智能指针提供了多于引用的额外功能。本章将会探索的一个例子便是 **引用计数** （*reference counting*）智能指针类型，其允许数据有多个所有者。引用计数智能指针记录总共有多少个所有者，并当没有任何所有者时负责清理数据。
 
 在 Rust 中，普通引用和智能指针的一个额外的区别是引用是一类只借用数据的指针；相反，在大部分情况下，智能指针 **拥有** 他们指向的数据。
 
@@ -3129,6 +3597,8 @@ Cargo 的设计使得开发者可以通过新的子命令来对 Cargo 进行扩�
 - 当有一个在编译时未知大小的类型，而又想要在需要确切大小的上下文中使用这个类型值的时候
 - 当有大量数据并希望在确保数据不被拷贝的情况下转移所有权的时候
 - 当希望拥有一个值并只关心它的类型是否实现了特定 trait 而不是其具体类型的时候
+
+我们会在 “box 允许创建递归类型” 部分展示第一种场景。在第二种情况中，转移大量数据的所有权可能会花费很长的时间，因为数据在栈上进行了拷贝。为了改善这种情况下的性能，可以通过 box 将这些数据储存在堆上。接着，只有少量的指针数据在栈上被拷贝。第三种情况被称为 **trait 对象**（*trait object*），第十七章刚好有一整个部分 “为使用不同类型的值而设计的 trait 对象” 专门讲解这个主题。所以这里所学的内容会在第十七章再次用上！
 
 **使用 Box<T> 在堆上储存数据**
 
@@ -3438,6 +3908,8 @@ CustomSmartPointer dropped before the end of main.
 ### Rc
 
 **Rc<T> 引用计数智能指针**
+
+大部分情况下所有权是非常明确的：可以准确地知道哪个变量拥有某个值。然而，有些情况单个值可能会有多个所有者。例如，在图数据结构中，多个边可能指向相同的节点，而这个节点从概念上讲为所有指向它的边所拥有。节点直到没有任何边指向它之前都不应该被清理。
 
 为了启用多所有权，Rust 有一个叫做 `Rc<T>` 的类型。其名称为 **引用计数**（*reference counting*）的缩写。引用计数意味着记录一个值引用的数量来知晓这个值是否仍在被使用。如果某个值有零个引用，就代表没有任何有效引用并可以被清理。
 
@@ -4604,6 +5076,26 @@ fn main() {
 
 - 返回值类型不为 `Self`
 - 方法没有任何泛型类型参数
+
+一个 trait 的方法不是对象安全的例子是标准库中的 `Clone` trait。`Clone` trait 的 `clone` 方法的参数签名看起来像这样：
+
+```rust
+pub trait Clone {
+    fn clone(&self) -> Self;
+}
+```
+
+```rust
+pub struct Screen {
+    pub components: Vec<Box<dyn Clone>>,
+}
+```
+
+将会得到如下错误：
+
+```text
+error[E0038]: the trait `std::clone::Clone` cannot be made into an object
+```
 
 ## 模式
 
@@ -5860,5 +6352,21 @@ temp_vec.push(1);
 temp_vec.push(2);
 temp_vec.push(3);
 temp_vec
+```
+
+**用于从属性生成代码的过程宏**
+
+https://rustwiki.org/zh-CN/book/ch19-06-macros.html
+
+第二种形式的宏被称为 **过程宏**（*procedural macros*），因为它们更像函数（一种过程类型）。过程宏接收 Rust 代码作为输入，在这些代码上进行操作，然后产生另一些代码作为输出，而非像声明式宏那样匹配对应模式然后以另一部分代码替换当前代码。
+
+有三种类型的过程宏（自定义派生（derive），类属性和类函数），不过它们的工作方式都类似。
+
+```rust
+use proc_macro;
+
+#[some_attribute]
+pub fn some_name(input: TokenStream) -> TokenStream {
+}
 ```
 

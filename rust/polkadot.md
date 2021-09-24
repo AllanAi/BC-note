@@ -6,7 +6,7 @@ The Polkadot network uses a [sharded model](https://en.wikipedia.org/wiki/Shard_
 
 Polkadot has a Relay Chain acting as the main chain of the system. Parachains construct and propose blocks to validators on the Relay Chain, where the blocks undergo rigorous [availability and validity](https://wiki.polkadot.network/docs/zh-CN/learn-availability) checks before being added to the finalized chain. As the Relay Chain provides the security guarantees, [collators](https://wiki.polkadot.network/docs/zh-CN/learn-collator) - full nodes of these parachains - don't have any security responsibilities, and thus do not require a robust incentive system. This is how the entire network stays up to date with the many transactions that take place.
 
-![polkadot-relay-chain](https://wiki.polkadot.network/docs/assets/polkadot_relay_chain.png)
+![polkadot-relay-chain](polkadot/polkadot_relay_chain-c411a282aa36af0f20d04389919a6275.png)
 
 为了与其它的区块确认性程序的链条进行交互 (例如: 比特币)，Polkadot 有[桥接链（bridge parachains）](https://wiki.polkadot.network/docs/zh-CN/learn-bridges) 提供双向兼容性。
 
@@ -111,5 +111,3 @@ Kusama
 | MicroKSM (uKSM) | 6      | 0.000001000000 |
 | MilliKSM (mKSM) | 9      | 0.001000000000 |
 | KSM             | 12     | 1.000000000000 |
-
-## 
