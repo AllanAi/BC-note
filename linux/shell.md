@@ -334,3 +334,8 @@ apt update
 ```
 
 https://www.digitalocean.com/community/questions/i-cannot-update-from-19-04-to-19-10-no-longer-has-a-release-file
+
+## 关机、重启等命令
+
+Use **reboot** to reboot the system. Use **halt** to halt the system without powering it off. Under the SysV init system **halt** had the same effect as **poweroff**, but with systemd as init system (the default since jessie) their effects are different. To power off the machine, use **poweroff** or **shutdown -h now**. The systemd init system provides additional commands that perform the same functions; for example **systemctl reboot** or **systemctl poweroff**.
+

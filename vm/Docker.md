@@ -41,26 +41,3 @@ https://cloud.tencent.com/developer/article/1081673
 
 https://www.jianshu.com/p/540407aeb55b
 
-# 二、Portainer
-
-Portainer是一款Docker可视化管理工具。
-
-```bash
-https://www.portainer.io/installation/
-# 拉取镜像
-docker pull portainer/portainer
-
-# 一键部署
-docker volume create portainer_data
-docker run -d -p 8000:8000 -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer
-```
-
-浏览器访问`localhost:9000`即可。
-
-# 三、其他
-
-```bash
-docker ps -a #查看所有容器
-docker stats #查看统计信息
-```
-

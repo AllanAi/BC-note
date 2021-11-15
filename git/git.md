@@ -373,6 +373,26 @@ git clone git@github.com-activehacker:activehacker/gfs.git gfs_jexchan
 
 
 
+## Commit message
+
+https://dev.to/puritanic/how-are-you-writing-a-commit-message-1ih7
+
+```bash
+$ git commit -m "feat: implement AVOD content reels"
+$ git commit -am "fix: routing issue on the main page"
+$ git commit -m "fix(player): fix player initialization"
+```
+
+- `feat`: a new feature for the user, not a new feature for a build script
+- `fix`: bug fix for the user, not a fix to a build scripts
+- `refactor`: refactoring production code
+- `chore`: updating gulp tasks etc.; no production code change
+- `docs`: changes to documentation
+- `style`: formatting, missing semicolons, etc.; no code change
+- `perf`: code improved in terms of processing performance
+- `vendor`: update version for dependencies, packages.
+- `test`: adding missing tests, refactoring tests; no production code change
+
 ## 学习资料
 
 - [Learn Git Branching](https://learngitbranching.js.org/) 知名的 Git 教学游戏，通过可视化的动画和交互，帮助理解所有分支操作的概念和方法。如果你打算自学，这些命令会用得上：`show solution`、`levels`、`undo`、`reset`。

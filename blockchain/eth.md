@@ -172,9 +172,7 @@ If a function has the signature `fertilizer(Garden memory gardenPlot)` then the 
 
 ```
 npm install -g remixd
-
 remixd -s gopath/src/github.com/cosmos/peggy/testnet-contracts/ --remix-ide http://localhost:8080
-
 remixd -s gopath/src/github.com/cosmos/peggy/testnet-ctracts/ --remix-ide https://remix.ethereum.org
 ```
 

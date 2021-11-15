@@ -1,4 +1,6 @@
-以太坊黄皮书 https://github.com/wanshan1024/ethereum_yellowpaper
+# 以太坊黄皮书
+
+https://github.com/wanshan1024/ethereum_yellowpaper
 
 工作量证明是区块链的安全基础，也是一个恶意节点不能用其新创建的区块来覆盖（“重写”）历史数据的重要原因。因为这个随机数必须满足这些条件，且因为条件依赖于这个区块的内容和相关交易，创建新的合法的区块是困难且耗时的，需要超过所有诚实矿工的算力总和。
 
@@ -12,7 +14,9 @@ ASIC 抗性的设计有两个方向：第一是去让它成为内存困难（mem
 
 EVM 是一个简单的基于栈的架构。其中字（Word）的大小（也就是栈中数据项的大小）是256 位。这是为了便于执行Keccak-256 位哈希和椭圆曲线计算。其内存（memory）模型是简单地基于字寻址（word-addressed）的字节数组。栈的最大深度为1024。EVM 也有一个独立的存储（storage）模型；它类似于内存的概念，但并不是一个字节数组，而是一个基于字寻址（word-addressable）的字数组（word array）。
 
-精通比特币 https://github.com/inoutcode/bitcoin_book_2nd
+# 精通比特币
+
+https://github.com/inoutcode/bitcoin_book_2nd
 
 ## 术语
 
